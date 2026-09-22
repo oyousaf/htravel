@@ -1,0 +1,24 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Section from "../components/Section.astro";
+import DestinationCard from "../components/DestinationCard.astro";
+import { destinations } from "../data/destinations";
+---
+
+<Layout title="Destinations" description="Popular flight and holiday destinations booked through Heckmondwike Travel & Tours.">
+  <section class="bg-navy pt-16 pb-12 sm:pt-24 sm:pb-16 px-4 sm:px-6 text-center">
+    <div data-animate-group>
+      <h1 data-animate class="text-4xl sm:text-5xl font-extrabold text-white mb-4">Destinations</h1>
+      <p data-animate class="text-white/70 max-w-2xl mx-auto">
+        A selection of our most-booked routes. Don't see where you're going? Get in touch — we
+        book flights and holidays worldwide.
+      </p>
+    </div>
+  </section>
+
+  <Section>
+    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+      {destinations.map((d) => <DestinationCard destination={d} />)}
+    </div>
+  </Section>
+</Layout>

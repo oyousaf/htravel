@@ -1,0 +1,55 @@
+---
+import { site } from "../data/site";
+import BrandMark from "./BrandMark.astro";
+
+const today = new Date().getDay(); // 0 = Sunday
+const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours order
+---
+
+<footer class="border-t border-white/10 bg-navy-dark mt-24">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 py-12 grid gap-10 sm:grid-cols-3">
+    <div>
+      <a href="/" class="inline-block mb-4">
+        <BrandMark class="hover:bg-teal-dark transition-colors" />
+      </a>
+      <p class="text-white/60 text-sm">{site.tagline}</p>
+    </div>
+
+    <div>
+      <h3 class="text-teal font-semibold mb-3 text-sm uppercase tracking-wide">Visit Us</h3>
+      <p class="text-white/70 text-sm leading-relaxed">
+        {site.address.line1}<br />
+        {site.address.line2}
+      </p>
+      <a href={site.phoneHref} class="block mt-2 text-white/70 text-sm hover:text-teal transition-colors">
+        {site.phone}
+      </a>
+      <a
+        href={site.whatsappHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-2 mt-3 text-sm font-medium text-teal hover:text-teal-dark transition-colors"
+      >
+        WhatsApp us
+      </a>
+    </div>
+
+    <div>
+      <h3 class="text-teal font-semibold mb-3 text-sm uppercase tracking-wide">Opening Hours</h3>
+      <ul class="text-white/70 text-sm space-y-1">
+        {
+          site.hours.map((h, i) => (
+            <li class:list={["flex justify-between gap-4", i === dayIndex ? "text-teal font-medium" : ""]}>
+              <span>{h.day}</span>
+              <span>{h.time}</span>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10 py-4 text-center text-xs text-white/40">
+    &copy; {new Date().getFullYear()} {site.name}. All rights reserved.
+  </div>
+</footer>

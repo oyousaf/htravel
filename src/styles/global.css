@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #0f1e33;
+  --color-navy-dark: #0a1424;
+  --color-navy-light: #16304f;
+  --color-teal: #3fd9c7;
+  --color-teal-dark: #2bb6a6;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+  background-color: var(--color-navy-dark);
+  color: white;
+  font-family: var(--font-sans);
+}
+
+/* Staggered fade-up-on-scroll: applied to any [data-animate] element.
+   Direct [data-animate] children of a [data-animate-group] get an
+   incremental transition-delay so they cascade in one after another. */
+[data-animate] {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+[data-animate].is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-animate] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

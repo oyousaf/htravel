@@ -1,0 +1,14 @@
+---
+interface Props {
+  class?: string;
+  id?: string;
+}
+
+const { class: className = "", id } = Astro.props;
+---
+
+<section id={id} class:list={["py-16 sm:py-24 px-4 sm:px-6", className]} data-animate-group>
+  <div class="mx-auto max-w-6xl">
+    <slot />
+  </div>
+</section>

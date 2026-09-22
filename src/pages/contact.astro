@@ -1,0 +1,150 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Section from "../components/Section.astro";
+import { site } from "../data/site";
+---
+
+<Layout title="Contact" description="Contact Heckmondwike Travel & Tours — call, WhatsApp, or visit our Oldfield Lane office.">
+  <section class="bg-navy pt-16 pb-12 sm:pt-24 sm:pb-16 px-4 sm:px-6 text-center">
+    <div data-animate-group>
+      <h1 data-animate class="text-4xl sm:text-5xl font-extrabold text-white mb-4">Contact Us</h1>
+      <p data-animate class="text-white/70 max-w-2xl mx-auto">
+        Call, WhatsApp, or send an enquiry — we're happy to help plan your trip.
+      </p>
+    </div>
+  </section>
+
+  <Section>
+    <div class="grid lg:grid-cols-2 gap-10" data-animate-group>
+      <div data-animate class="space-y-6">
+        <div class="rounded-2xl bg-navy-light/50 border border-white/10 p-6">
+          <h2 class="text-teal font-semibold uppercase text-sm tracking-wide mb-3">Get In Touch</h2>
+          <p class="text-white text-lg font-semibold">{site.address.line1}</p>
+          <p class="text-white/70">{site.address.line2}</p>
+          <a href={site.phoneHref} class="block mt-4 text-white hover:text-teal transition-colors font-medium">
+            {site.phone}
+          </a>
+          <a
+            href={site.whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex mt-2 text-teal font-medium hover:text-teal-dark transition-colors"
+          >
+            Message us on WhatsApp
+          </a>
+        </div>
+
+        <div class="rounded-2xl bg-navy-light/50 border border-white/10 p-6">
+          <h2 class="text-teal font-semibold uppercase text-sm tracking-wide mb-3">Opening Hours</h2>
+          <ul class="text-white/70 text-sm space-y-1">
+            {
+              site.hours.map((h) => (
+                <li class="flex justify-between">
+                  <span>{h.day}</span>
+                  <span>{h.time}</span>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <div class="rounded-2xl overflow-hidden border border-white/10 aspect-video">
+          <iframe
+            src={site.mapsEmbedSrc}
+            class="w-full h-full"
+            style="border:0;"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Map to Heckmondwike Travel & Tours"
+          ></iframe>
+        </div>
+      </div>
+
+      <div data-animate class="rounded-2xl bg-navy-light/50 border border-white/10 p-6 sm:p-8">
+        <h2 class="text-teal font-semibold uppercase text-sm tracking-wide mb-4">Send an Enquiry</h2>
+        <form id="contact-form" method="POST" class="space-y-4">
+          <div>
+            <label for="name" class="block text-sm text-white/70 mb-1">Name</label>
+            <input
+              id="name"
+              name="name"
+              type="text"
+              required
+              class="w-full rounded-lg bg-navy-dark border border-white/20 px-4 py-2.5 text-white focus:border-teal focus:outline-none"
+            />
+          </div>
+          <div>
+            <label for="email" class="block text-sm text-white/70 mb-1">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              class="w-full rounded-lg bg-navy-dark border border-white/20 px-4 py-2.5 text-white focus:border-teal focus:outline-none"
+            />
+          </div>
+          <div>
+            <label for="phone" class="block text-sm text-white/70 mb-1">Phone</label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              class="w-full rounded-lg bg-navy-dark border border-white/20 px-4 py-2.5 text-white focus:border-teal focus:outline-none"
+            />
+          </div>
+          <div>
+            <label for="message" class="block text-sm text-white/70 mb-1">Message</label>
+            <textarea
+              id="message"
+              name="message"
+              rows="4"
+              required
+              class="w-full rounded-lg bg-navy-dark border border-white/20 px-4 py-2.5 text-white focus:border-teal focus:outline-none"
+            ></textarea>
+          </div>
+          <button
+            type="submit"
+            class="w-full rounded-full bg-teal px-6 py-3 text-sm font-semibold text-navy-dark hover:bg-teal-dark transition-colors disabled:opacity-50"
+          >
+            Send Enquiry
+          </button>
+          <p id="contact-form-status" class="text-sm hidden" role="status"></p>
+        </form>
+      </div>
+    </div>
+  </Section>
+</Layout>
+
+<script>
+  const form = document.getElementById("contact-form") as HTMLFormElement | null;
+  const status = document.getElementById("contact-form-status");
+  const submitButton = form?.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!status || !submitButton) return;
+
+    submitButton.disabled = true;
+    status.classList.remove("hidden", "text-red-400", "text-teal");
+    status.textContent = "Sending…";
+    status.classList.add("text-white/60");
+
+    try {
+      const res = await fetch("/api/contact", { method: "POST", body: new FormData(form) });
+      const json = await res.json();
+
+      if (!res.ok) throw new Error(json.error ?? "Something went wrong.");
+
+      status.classList.remove("text-white/60");
+      status.classList.add("text-teal");
+      status.textContent = "Thanks — we've received your enquiry and will be in touch shortly.";
+      form.reset();
+    } catch (err) {
+      status.classList.remove("text-white/60");
+      status.classList.add("text-red-400");
+      status.textContent = err instanceof Error ? err.message : "Something went wrong.";
+    } finally {
+      submitButton.disabled = false;
+    }
+  });
+</script>

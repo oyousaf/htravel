@@ -1,0 +1,33 @@
+---
+---
+
+<button
+  id="scroll-to-top"
+  type="button"
+  aria-label="Scroll to top"
+  class="fixed bottom-6 right-6 z-40 h-12 w-12 rounded-full bg-teal text-navy-dark shadow-lg shadow-black/30 flex items-center justify-center opacity-0 translate-y-4 pointer-events-none transition-all duration-300 hover:bg-teal-dark"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-5 w-5">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+  </svg>
+</button>
+
+<script>
+  const btn = document.getElementById("scroll-to-top");
+
+  function updateVisibility() {
+    if (!btn) return;
+    const isVisible = window.scrollY > 480;
+    btn.classList.toggle("opacity-0", !isVisible);
+    btn.classList.toggle("translate-y-4", !isVisible);
+    btn.classList.toggle("pointer-events-none", !isVisible);
+  }
+
+  window.addEventListener("scroll", updateVisibility, { passive: true });
+  document.addEventListener("astro:page-load", updateVisibility);
+  updateVisibility();
+
+  btn?.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+</script>

@@ -1,0 +1,28 @@
+---
+interface Props {
+  class?: string;
+  id?: string;
+}
+
+const { class: className = "", id } = Astro.props;
+---
+
+<span
+  id={id}
+  class:list={[
+    "inline-flex items-center gap-2 rounded-full bg-teal px-4 py-2",
+    className,
+  ]}
+>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 text-navy-dark shrink-0 rotate-45">
+    <path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2.5 1.5V22l4-1 4 1v-1.5L13 19v-5.5z" />
+  </svg>
+  <span class="leading-tight">
+    <span class="block text-[10px] sm:text-xs font-semibold tracking-wide text-navy-dark uppercase">
+      Heckmondwike
+    </span>
+    <span class="block text-xs sm:text-sm font-extrabold tracking-tight text-navy-dark uppercase -mt-0.5">
+      Travel &amp; Tours
+    </span>
+  </span>
+</span>

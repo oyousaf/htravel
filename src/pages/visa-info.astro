@@ -1,0 +1,49 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Section from "../components/Section.astro";
+import { site } from "../data/site";
+---
+
+<Layout title="Visa Info" description="Visa assistance from Heckmondwike Travel & Tours for Pakistan, the Gulf, Europe, and beyond.">
+  <section class="bg-navy pt-16 pb-12 sm:pt-24 sm:pb-16 px-4 sm:px-6 text-center">
+    <div data-animate-group>
+      <h1 data-animate class="text-4xl sm:text-5xl font-extrabold text-white mb-4">Visa Assistance</h1>
+      <p data-animate class="text-white/70 max-w-2xl mx-auto">
+        We help take the stress out of visa applications for your trip.
+      </p>
+    </div>
+  </section>
+
+  <Section>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" data-animate-group>
+      {
+        [
+          { title: "Pakistan", desc: "Guidance for NICOP, POC, and visit visa documentation." },
+          { title: "Saudi Arabia (Hajj/Umrah)", desc: "Visa processing included with all our Hajj & Umrah packages." },
+          { title: "UAE & Gulf", desc: "Tourist visa applications for Dubai and neighbouring countries." },
+          { title: "Schengen / Europe", desc: "Support gathering documentation for short-stay visas." },
+          { title: "Turkey", desc: "e-Visa guidance for eligible nationalities." },
+          { title: "Other Destinations", desc: "Ask us — we can advise on most destinations worldwide." },
+        ].map((v) => (
+          <div data-animate class="rounded-2xl bg-navy-light/50 border border-white/10 p-6">
+            <h3 class="text-lg font-bold text-white mb-2">{v.title}</h3>
+            <p class="text-white/60 text-sm">{v.desc}</p>
+          </div>
+        ))
+      }
+    </div>
+
+    <div data-animate class="mt-12 rounded-2xl bg-navy-light border border-white/10 p-6 sm:p-8 text-center">
+      <p class="text-white/70 mb-4">
+        Visa requirements change often and depend on your nationality and travel document — always
+        confirm current requirements with us or the relevant embassy before booking.
+      </p>
+      <a
+        href={site.phoneHref}
+        class="inline-flex rounded-full bg-teal px-6 py-3 text-sm font-semibold text-navy-dark hover:bg-teal-dark transition-colors"
+      >
+        Ask Us About Your Visa
+      </a>
+    </div>
+  </Section>
+</Layout>
