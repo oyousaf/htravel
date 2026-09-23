@@ -14,8 +14,8 @@ export const site = {
     tiktok: "https://www.tiktok.com/@heckmondwike.trav8",
   },
   address: {
-    line1: "36 Oldfield Ln",
-    line2: "Heckmondwike WF16 0JD, UK",
+    line1: "36 Oldfield Lane",
+    line2: "Heckmondwike, WF16 0JD",
     full: "36 Oldfield Ln, Heckmondwike, WF16 0JD",
   },
   mapsEmbedSrc:
