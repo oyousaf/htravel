@@ -3,6 +3,8 @@ import Layout from "../layouts/Layout.astro";
 import Section from "../components/Section.astro";
 import DestinationCard from "../components/DestinationCard.astro";
 import ExchangeRate from "../components/ExchangeRate.tsx";
+import Testimonials from "../components/Testimonials.astro";
+import LiveFlights from "../components/LiveFlights.tsx";
 import { destinations } from "../data/destinations";
 import { site } from "../data/site";
 ---
@@ -67,6 +69,21 @@ import { site } from "../data/site";
           </div>
         ))
       }
+    </div>
+  </Section>
+
+  <!-- Live flights -->
+  <Section class="pt-0">
+    <div class="grid lg:grid-cols-2 gap-6 items-center">
+      <div data-animate>
+        <h3 class="text-lg font-bold text-white mb-1">Curious what's flying overhead?</h3>
+        <p class="text-white/60 text-sm">
+          A live look at air traffic over the UK right now — just for fun, powered by public flight-tracking data.
+        </p>
+      </div>
+      <div data-animate>
+        <LiveFlights client:load />
+      </div>
     </div>
   </Section>
 
@@ -147,6 +164,15 @@ import { site } from "../data/site";
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
       {destinations.map((d) => <DestinationCard destination={d} />)}
     </div>
+  </Section>
+
+  <!-- Testimonials -->
+  <Section class="bg-navy-light/30">
+    <div class="mb-10" data-animate>
+      <h2 class="text-3xl sm:text-4xl font-bold text-white">What Our Customers Say</h2>
+      <p class="text-white/60 mt-2">Real reviews from real trips.</p>
+    </div>
+    <Testimonials />
   </Section>
 
   <!-- CTA -->

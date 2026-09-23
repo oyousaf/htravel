@@ -1,9 +1,20 @@
 import { useEffect, useState } from "react";
 
+const CURRENCIES = ["PKR", "EUR", "AED", "TRY", "INR", "BDT"] as const;
+type Currency = (typeof CURRENCIES)[number];
+
+const FLAGS: Record<Currency, string> = {
+  PKR: "🇵🇰",
+  EUR: "🇪🇺",
+  AED: "🇦🇪",
+  TRY: "🇹🇷",
+  INR: "🇮🇳",
+  BDT: "🇧🇩",
+};
+
 interface RateResponse {
-  rate: number;
   base: "GBP";
-  target: "PKR";
+  rates: Record<Currency, number>;
   updatedAt: string;
   source: "cache" | "live" | "stale-fallback";
 }
@@ -44,6 +55,8 @@ export default function ExchangeRate() {
     };
   }, []);
 
+  const otherCurrencies = CURRENCIES.filter((c) => c !== "PKR");
+
   return (
     <div className="rounded-2xl border border-teal/30 bg-navy-light/60 backdrop-blur px-6 py-5 sm:px-8 sm:py-6 shadow-xl">
       <p className="text-xs sm:text-sm uppercase tracking-widest text-teal font-semibold mb-2">
@@ -53,7 +66,7 @@ export default function ExchangeRate() {
         <span className="text-lg sm:text-xl text-white/70">1 GBP =</span>
         {data ? (
           <span className="text-4xl sm:text-5xl font-bold text-white tabular-nums">
-            {data.rate.toFixed(2)}
+            {data.rates.PKR.toFixed(2)}
           </span>
         ) : error ? (
           <span className="text-2xl font-semibold text-white/50">unavailable</span>
@@ -65,12 +78,20 @@ export default function ExchangeRate() {
         <span className="text-lg sm:text-xl text-white/70">PKR</span>
       </div>
       <p className="mt-3 text-xs text-white/50">
-        {data
-          ? `Last updated ${formatUpdatedAt(data.updatedAt)}`
-          : error
-          ? "Last updated —"
-          : "Last updated —"}
+        {data ? `Last updated ${formatUpdatedAt(data.updatedAt)}` : "Last updated —"}
       </p>
+
+      <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-3 gap-x-4 gap-y-2">
+        {otherCurrencies.map((code) => (
+          <div key={code} className="flex items-center gap-1.5 text-sm">
+            <span aria-hidden="true">{FLAGS[code]}</span>
+            <span className="text-white/50">{code}</span>
+            <span className="text-white font-semibold tabular-nums ml-auto">
+              {data ? data.rates[code].toFixed(2) : "—"}
+            </span>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

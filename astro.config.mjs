@@ -7,6 +7,9 @@ import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://heckytravel.uk',
+  trailingSlash: 'never',
+
   vite: {
     plugins: [tailwindcss()]
   },

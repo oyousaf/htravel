@@ -1,0 +1,76 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import Section from "../../components/Section.astro";
+import WeatherWidget from "../../components/WeatherWidget.tsx";
+import { destinations } from "../../data/destinations";
+import { site } from "../../data/site";
+
+export function getStaticPaths() {
+  return destinations.map((destination) => ({
+    params: { slug: destination.slug },
+    props: { destination },
+  }));
+}
+
+const { destination } = Astro.props;
+---
+
+<Layout
+  title={`Flights to ${destination.name}`}
+  description={`Flights and holidays to ${destination.name}, ${destination.country} — booked by Heckmondwike Travel & Tours.`}
+>
+  <section class="relative bg-navy pt-16 pb-16 sm:pt-24 sm:pb-20 px-4 sm:px-6 overflow-hidden">
+    <div class="absolute inset-0 opacity-30">
+      <img src={destination.image} alt="" class="h-full w-full object-cover" onerror="this.style.display='none'" />
+      <div class="absolute inset-0 bg-gradient-to-t from-navy via-navy/80 to-navy/40"></div>
+    </div>
+    <div class="relative mx-auto max-w-4xl text-center" data-animate-group>
+      <p data-animate class="text-teal font-semibold uppercase text-sm tracking-wide mb-3">
+        {destination.country}
+      </p>
+      <h1 data-animate class="text-4xl sm:text-5xl font-extrabold text-white mb-4">
+        Flights to {destination.name}
+      </h1>
+      <p data-animate class="text-white/70 max-w-2xl mx-auto mb-6">{destination.blurb}</p>
+      <div data-animate>
+        <WeatherWidget client:load city={destination.weatherCity} label={destination.name} />
+      </div>
+    </div>
+  </section>
+
+  <Section>
+    <div class="grid lg:grid-cols-3 gap-10">
+      <div class="lg:col-span-2" data-animate>
+        <h2 class="text-2xl font-bold text-white mb-4">About This Route</h2>
+        <p class="text-white/70 leading-relaxed">{destination.description}</p>
+      </div>
+      <div data-animate class="rounded-2xl bg-navy-light/50 border border-white/10 p-6 h-fit">
+        <h3 class="text-teal font-semibold uppercase text-sm tracking-wide mb-3">Get a Quote</h3>
+        <p class="text-white/70 text-sm mb-4">
+          Call, WhatsApp, or send an enquiry and we'll find you the best fare to {destination.name}.
+        </p>
+        <a
+          href={site.phoneHref}
+          class="block text-center rounded-full bg-teal px-6 py-3 text-sm font-semibold text-navy-dark hover:bg-teal-dark transition-colors mb-3"
+        >
+          Call {site.phone}
+        </a>
+        <a
+          href="/contact"
+          class="block text-center rounded-full border border-white/20 px-6 py-3 text-sm font-semibold text-white hover:border-teal hover:text-teal transition-colors"
+        >
+          Send an Enquiry
+        </a>
+      </div>
+    </div>
+  </Section>
+
+  <Section class="bg-navy-light/30">
+    <div data-animate class="text-center">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">Looking for Somewhere Else?</h2>
+      <a href="/destinations" class="text-teal font-semibold hover:text-teal-dark transition-colors">
+        ← Back to all destinations
+      </a>
+    </div>
+  </Section>
+</Layout>
