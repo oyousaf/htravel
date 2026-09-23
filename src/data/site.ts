@@ -16,7 +16,7 @@ export const site = {
   address: {
     line1: "36 Oldfield Ln",
     line2: "Heckmondwike WF16 0JD, UK",
-    full: "36 Oldfield Ln, Heckmondwike WF16 0JD, UK",
+    full: "36 Oldfield Ln, Heckmondwike, WF16 0JD",
   },
   mapsEmbedSrc:
     "https://www.google.com/maps?q=36+Oldfield+Ln,+Heckmondwike+WF16+0JD,+UK&output=embed",

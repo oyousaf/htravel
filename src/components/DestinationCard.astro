@@ -11,7 +11,7 @@ const { destination } = Astro.props;
 <a
   href={`/destinations/${destination.slug}`}
   data-animate
-  class="group relative overflow-hidden rounded-2xl aspect-[4/5] block bg-navy-light"
+  class="group relative overflow-hidden rounded-2xl aspect-4/5 block bg-navy-light"
 >
   <img
     src={destination.image}
@@ -20,7 +20,7 @@ const { destination } = Astro.props;
     class="absolute inset-0 h-full w-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500"
     onerror="this.style.display='none'"
   />
-  <div class="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/20 to-transparent"></div>
+  <div class="absolute inset-0 bg-linear-to-t from-navy-dark via-navy-dark/20 to-transparent"></div>
   <div class="absolute bottom-0 left-0 right-0 p-4">
     <p class="text-xs uppercase tracking-wide text-teal font-semibold">{destination.country}</p>
     <h3 class="text-lg font-bold text-white">{destination.name}</h3>
