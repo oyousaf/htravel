@@ -36,38 +36,74 @@ const currentPath = Astro.url.pathname;
 
     <button
       id="mobile-menu-toggle"
-      class="md:hidden text-white p-2"
+      class="md:hidden relative h-6 w-6 shrink-0"
       aria-label="Toggle menu"
       aria-expanded="false"
     >
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
+      <span
+        id="hamburger-bar-1"
+        class="absolute left-0 top-1 h-0.5 w-6 rounded-full bg-white transition-transform duration-300 ease-out"
+      ></span>
+      <span
+        id="hamburger-bar-2"
+        class="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 w-6 rounded-full bg-white transition-opacity duration-200 ease-out"
+      ></span>
+      <span
+        id="hamburger-bar-3"
+        class="absolute left-0 bottom-1 h-0.5 w-6 rounded-full bg-white transition-transform duration-300 ease-out"
+      ></span>
     </button>
   </div>
 
-  <nav id="mobile-menu" class="hidden md:hidden border-t border-white/10 px-4 py-3 flex-col gap-3 text-sm font-medium">
-    {
-      site.nav.map((item) => (
-        <a href={item.href} class="text-white/80 hover:text-teal transition-colors">
-          {item.label}
+  <div
+    id="mobile-menu-wrapper"
+    class="md:hidden grid transition-[grid-template-rows] duration-300 ease-out"
+    style="grid-template-rows: 0fr;"
+  >
+    <nav id="mobile-menu" class="overflow-hidden">
+      <div
+        id="mobile-menu-inner"
+        class="border-t border-white/10 px-4 py-3 flex flex-col gap-3 text-sm font-medium opacity-0 -translate-y-2 transition-all duration-300 ease-out"
+      >
+        {
+          site.nav.map((item) => (
+            <a href={item.href} class="text-white/80 hover:text-teal transition-colors">
+              {item.label}
+            </a>
+          ))
+        }
+        <a href={site.phoneHref} class="text-teal font-semibold">
+          Call {site.phone}
         </a>
-      ))
-    }
-    <a href={site.phoneHref} class="text-teal font-semibold">
-      Call {site.phone}
-    </a>
-  </nav>
+      </div>
+    </nav>
+  </div>
 </header>
 
 <script>
   const toggle = document.getElementById("mobile-menu-toggle");
-  const menu = document.getElementById("mobile-menu");
-  toggle?.addEventListener("click", () => {
-    const isHidden = menu?.classList.contains("hidden");
-    menu?.classList.toggle("hidden");
-    toggle.setAttribute("aria-expanded", String(isHidden));
-  });
+  const wrapper = document.getElementById("mobile-menu-wrapper");
+  const inner = document.getElementById("mobile-menu-inner");
+  const bar1 = document.getElementById("hamburger-bar-1");
+  const bar2 = document.getElementById("hamburger-bar-2");
+  const bar3 = document.getElementById("hamburger-bar-3");
+  let isOpen = false;
+
+  function setMenuOpen(open: boolean) {
+    isOpen = open;
+    toggle?.setAttribute("aria-expanded", String(open));
+
+    if (wrapper) wrapper.style.gridTemplateRows = open ? "1fr" : "0fr";
+
+    inner?.classList.toggle("opacity-0", !open);
+    inner?.classList.toggle("-translate-y-2", !open);
+
+    bar1?.style.setProperty("transform", open ? "translateY(7px) rotate(45deg)" : "none");
+    bar3?.style.setProperty("transform", open ? "translateY(-7px) rotate(-45deg)" : "none");
+    bar2?.classList.toggle("opacity-0", open);
+  }
+
+  toggle?.addEventListener("click", () => setMenuOpen(!isOpen));
 
   const brandLink = document.getElementById("brand-home-link");
   brandLink?.addEventListener("click", (e) => {
