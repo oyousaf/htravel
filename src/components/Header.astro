@@ -36,13 +36,13 @@ const currentPath = Astro.url.pathname;
 
     <button
       id="mobile-menu-toggle"
-      class="md:hidden relative h-6 w-6 shrink-0"
+      class="md:hidden relative z-50 h-6 w-6 shrink-0"
       aria-label="Toggle menu"
       aria-expanded="false"
     >
       <span
         id="hamburger-bar-1"
-        class="absolute left-0 top-1 h-0.5 w-6 rounded-full bg-white transition-transform duration-300 ease-out"
+        class="absolute left-0 top-1 h-0.5 w-6 rounded-full bg-white transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
       ></span>
       <span
         id="hamburger-bar-2"
@@ -50,40 +50,54 @@ const currentPath = Astro.url.pathname;
       ></span>
       <span
         id="hamburger-bar-3"
-        class="absolute left-0 bottom-1 h-0.5 w-6 rounded-full bg-white transition-transform duration-300 ease-out"
+        class="absolute left-0 bottom-1 h-0.5 w-6 rounded-full bg-white transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]"
       ></span>
     </button>
   </div>
-
-  <div
-    id="mobile-menu-wrapper"
-    class="md:hidden grid transition-[grid-template-rows] duration-300 ease-out"
-    style="grid-template-rows: 0fr;"
-  >
-    <nav id="mobile-menu" class="overflow-hidden">
-      <div
-        id="mobile-menu-inner"
-        class="border-t border-white/10 px-4 py-3 flex flex-col gap-3 text-sm font-medium opacity-0 -translate-y-2 transition-all duration-300 ease-out"
-      >
-        {
-          site.nav.map((item) => (
-            <a href={item.href} class="text-white/80 hover:text-teal transition-colors">
-              {item.label}
-            </a>
-          ))
-        }
-        <a href={site.phoneHref} class="text-teal font-semibold">
-          Call {site.phone}
-        </a>
-      </div>
-    </nav>
-  </div>
 </header>
+
+<div
+  id="mobile-menu-overlay"
+  class="md:hidden fixed inset-0 z-40 bg-navy-dark/98 backdrop-blur-2xl opacity-0 pointer-events-none transition-opacity duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]"
+>
+  <nav class="h-full flex flex-col items-center justify-center gap-1 px-6">
+    {
+      site.nav.map((item, i) => (
+        <a
+          href={item.href}
+          class="mobile-nav-item text-3xl font-bold text-white/90 hover:text-teal transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] opacity-0 translate-y-6 py-2"
+          style={`transition-delay: ${i * 60}ms`}
+        >
+          {item.label}
+        </a>
+      ))
+    }
+    <div
+      class="mobile-nav-item opacity-0 translate-y-6 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] mt-8 flex flex-col items-center gap-4"
+      style={`transition-delay: ${site.nav.length * 60}ms`}
+    >
+      <a
+        href={site.phoneHref}
+        class="rounded-full bg-teal px-8 py-3 text-base font-semibold text-navy-dark hover:bg-teal-dark transition-colors"
+      >
+        Call {site.phone}
+      </a>
+      <a
+        href={site.whatsappHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-teal font-medium hover:text-teal-dark transition-colors"
+      >
+        WhatsApp Us
+      </a>
+    </div>
+  </nav>
+</div>
 
 <script>
   const toggle = document.getElementById("mobile-menu-toggle");
-  const wrapper = document.getElementById("mobile-menu-wrapper");
-  const inner = document.getElementById("mobile-menu-inner");
+  const overlay = document.getElementById("mobile-menu-overlay");
+  const items = document.querySelectorAll<HTMLElement>(".mobile-nav-item");
   const bar1 = document.getElementById("hamburger-bar-1");
   const bar2 = document.getElementById("hamburger-bar-2");
   const bar3 = document.getElementById("hamburger-bar-3");
@@ -93,17 +107,30 @@ const currentPath = Astro.url.pathname;
     isOpen = open;
     toggle?.setAttribute("aria-expanded", String(open));
 
-    if (wrapper) wrapper.style.gridTemplateRows = open ? "1fr" : "0fr";
+    overlay?.classList.toggle("opacity-0", !open);
+    overlay?.classList.toggle("pointer-events-none", !open);
 
-    inner?.classList.toggle("opacity-0", !open);
-    inner?.classList.toggle("-translate-y-2", !open);
+    items.forEach((item) => {
+      item.classList.toggle("opacity-0", !open);
+      item.classList.toggle("translate-y-6", !open);
+    });
 
     bar1?.style.setProperty("transform", open ? "translateY(7px) rotate(45deg)" : "none");
     bar3?.style.setProperty("transform", open ? "translateY(-7px) rotate(-45deg)" : "none");
     bar2?.classList.toggle("opacity-0", open);
+
+    document.documentElement.style.overflow = open ? "hidden" : "";
   }
 
   toggle?.addEventListener("click", () => setMenuOpen(!isOpen));
+
+  document.querySelectorAll(".mobile-nav-item a").forEach((link) => {
+    link.addEventListener("click", () => setMenuOpen(false));
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && isOpen) setMenuOpen(false);
+  });
 
   const brandLink = document.getElementById("brand-home-link");
   brandLink?.addEventListener("click", (e) => {
