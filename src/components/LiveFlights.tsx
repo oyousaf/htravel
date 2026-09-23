@@ -69,17 +69,17 @@ export default function LiveFlights() {
               {data.sample.slice(0, 4).map((f) => (
                 <li key={f.callsign} className="flex justify-between text-white/70">
                   <span className="font-mono">{f.callsign}</span>
-                  <span className="text-white/40">{f.originCountry}</span>
+                  <span className="text-white/55">{f.originCountry}</span>
                 </li>
               ))}
             </ul>
           )}
         </>
       ) : (
-        <p className="text-white/40 text-sm animate-pulse">Loading live data…</p>
+        <p className="text-white/55 text-sm animate-pulse">Loading live data…</p>
       )}
 
-      <p className="text-white/30 text-xs mt-4">Data via OpenSky Network</p>
+      <p className="text-white/55 text-xs mt-4">Data via OpenSky Network</p>
     </div>
   );
 }

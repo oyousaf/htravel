@@ -71,7 +71,7 @@ export default function ExchangeRate() {
         ) : error ? (
           <span className="text-2xl font-semibold text-white/50">unavailable</span>
         ) : (
-          <span className="text-4xl sm:text-5xl font-bold text-white/30 animate-pulse">
+          <span className="text-4xl sm:text-5xl font-bold text-white/45 animate-pulse">
             ---.--
           </span>
         )}

@@ -52,7 +52,7 @@ export default function WeatherWidget({ city, label }: Props) {
           <span className="text-white/50 text-sm">in {label}</span>
         </>
       ) : (
-        <span className="text-white/40 text-sm animate-pulse">Loading weather…</span>
+        <span className="text-white/55 text-sm animate-pulse">Loading weather…</span>
       )}
     </div>
   );
