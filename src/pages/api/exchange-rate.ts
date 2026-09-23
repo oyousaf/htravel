@@ -7,7 +7,7 @@ const CACHE_TTL_MS = 3 * 60 * 60 * 1000; // refresh every 3 hours
 // Other currencies are shown at the raw market rate for now.
 const PKR_MARGIN = 1;
 
-const CURRENCIES = ["PKR", "EUR", "AED", "TRY", "INR", "BDT"] as const;
+const CURRENCIES = ["PKR", "SAR", "TRY", "AED", "INR", "BDT", "EUR"] as const;
 type Currency = (typeof CURRENCIES)[number];
 
 interface RateCache {

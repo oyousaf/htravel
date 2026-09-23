@@ -5,6 +5,7 @@ import DestinationCard from "../components/DestinationCard.astro";
 import ExchangeRate from "../components/ExchangeRate.tsx";
 import Testimonials from "../components/Testimonials.astro";
 import LiveFlights from "../components/LiveFlights.tsx";
+import WhatsAppButton from "../components/WhatsAppButton.astro";
 import { destinations } from "../data/destinations";
 import { site } from "../data/site";
 ---
@@ -32,14 +33,7 @@ import { site } from "../data/site";
           >
             Get a Free Quote
           </a>
-          <a
-            href={site.whatsappHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="rounded-full border border-white/30 px-6 py-3 text-sm font-semibold text-white hover:border-teal hover:text-teal transition-colors"
-          >
-            WhatsApp Us
-          </a>
+          <WhatsAppButton />
         </div>
       </div>
 
@@ -186,6 +180,7 @@ import { site } from "../data/site";
         <a href={site.phoneHref} class="rounded-full bg-navy-dark px-6 py-3 text-sm font-semibold text-white hover:bg-navy transition-colors">
           Call {site.phone}
         </a>
+        <WhatsAppButton tone="dark" />
         <a href="/contact" class="rounded-full border border-navy-dark px-6 py-3 text-sm font-semibold text-navy-dark hover:bg-navy-dark hover:text-white transition-colors">
           Contact Us
         </a>

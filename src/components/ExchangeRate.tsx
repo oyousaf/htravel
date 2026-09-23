@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 
-const CURRENCIES = ["PKR", "EUR", "AED", "TRY", "INR", "BDT"] as const;
+const CURRENCIES = ["PKR", "SAR", "TRY", "AED", "INR", "BDT", "EUR"] as const;
 type Currency = (typeof CURRENCIES)[number];
 
 const FLAGS: Record<Currency, string> = {
   PKR: "🇵🇰",
-  EUR: "🇪🇺",
-  AED: "🇦🇪",
+  SAR: "🇸🇦",
   TRY: "🇹🇷",
+  AED: "🇦🇪",
   INR: "🇮🇳",
   BDT: "🇧🇩",
+  EUR: "🇪🇺",
 };
 
 interface RateResponse {
