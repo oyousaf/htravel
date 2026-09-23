@@ -3,7 +3,16 @@ export const site = {
   tagline: "Turning Dreams Into Memories",
   phone: "01924 409933",
   phoneHref: "tel:+441924409933",
-  whatsappHref: "https://wa.me/441924409933",
+  mobile: "07311 398717",
+  mobileHref: "tel:+447311398717",
+  whatsappHref: "https://wa.me/447311398717",
+  email: "heckmondwiketravelandtours@gmail.com",
+  emailHref: "mailto:heckmondwiketravelandtours@gmail.com",
+  social: {
+    facebook:
+      "https://www.facebook.com/people/Heckmondwike-Travel-tours/pfbid0eAtH3DzEiubsDXyfUTLdNDMLZb44iFEKXiUQ71S7v3Y8hjQevHojJ483Rw7UmPBQl/",
+    tiktok: "https://www.tiktok.com/@heckmondwike.trav8",
+  },
   address: {
     line1: "36 Oldfield Ln",
     line2: "Heckmondwike WF16 0JD, UK",

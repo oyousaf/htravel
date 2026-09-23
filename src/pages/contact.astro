@@ -1,7 +1,11 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Section from "../components/Section.astro";
+import SocialIcons from "../components/SocialIcons.astro";
 import { site } from "../data/site";
+
+const today = new Date().getDay(); // 0 = Sunday
+const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours order
 ---
 
 <Layout title="Contact" description="Contact Heckmondwike Travel & Tours — call, WhatsApp, or visit our Oldfield Lane office.">
@@ -24,6 +28,12 @@ import { site } from "../data/site";
           <a href={site.phoneHref} class="block mt-4 text-white hover:text-teal transition-colors font-medium">
             {site.phone}
           </a>
+          <a href={site.mobileHref} class="block mt-1 text-white hover:text-teal transition-colors font-medium">
+            {site.mobile}
+          </a>
+          <a href={site.emailHref} class="block mt-1 text-white hover:text-teal transition-colors font-medium">
+            {site.email}
+          </a>
           <a
             href={site.whatsappHref}
             target="_blank"
@@ -32,14 +42,15 @@ import { site } from "../data/site";
           >
             Message us on WhatsApp
           </a>
+          <SocialIcons class="mt-4" />
         </div>
 
         <div class="rounded-2xl bg-navy-light/50 border border-white/10 p-6">
           <h2 class="text-teal font-semibold uppercase text-sm tracking-wide mb-3">Opening Hours</h2>
           <ul class="text-white/70 text-sm space-y-1">
             {
-              site.hours.map((h) => (
-                <li class="flex justify-between">
+              site.hours.map((h, i) => (
+                <li class:list={["flex justify-between", i === dayIndex ? "text-teal font-medium" : ""]}>
                   <span>{h.day}</span>
                   <span>{h.time}</span>
                 </li>

@@ -1,6 +1,7 @@
 ---
 import { site } from "../data/site";
 import BrandMark from "./BrandMark.astro";
+import SocialIcons from "./SocialIcons.astro";
 
 const today = new Date().getDay(); // 0 = Sunday
 const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours order
@@ -12,7 +13,8 @@ const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours ord
       <a href="/" class="inline-block mb-4">
         <BrandMark class="hover:bg-teal-dark transition-colors" />
       </a>
-      <p class="text-white/60 text-sm">{site.tagline}</p>
+      <p class="text-white/60 text-sm mb-4">{site.tagline}</p>
+      <SocialIcons />
     </div>
 
     <div>
@@ -23,6 +25,9 @@ const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours ord
       </p>
       <a href={site.phoneHref} class="block mt-2 text-white/70 text-sm hover:text-teal transition-colors">
         {site.phone}
+      </a>
+      <a href={site.emailHref} class="block mt-1 text-white/70 text-sm hover:text-teal transition-colors">
+        {site.email}
       </a>
       <a
         href={site.whatsappHref}
