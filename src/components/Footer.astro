@@ -23,9 +23,15 @@ const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours ord
         {site.address.line1}<br />
         {site.address.line2}
       </p>
-      <a href={site.phoneHref} class="block mt-2 text-white/70 text-sm hover:text-teal transition-colors">
-        {site.phone}
-      </a>
+      <div class="flex flex-wrap items-center gap-2 mt-2 text-sm">
+        <a href={site.mobileHref} class="text-white/70 hover:text-teal transition-colors">
+          {site.mobile}
+        </a>
+        <span class="text-white/40">·</span>
+        <a href={site.phoneHref} class="text-white/70 hover:text-teal transition-colors">
+          {site.phone}
+        </a>
+      </div>
       <a href={site.emailHref} class="block mt-1 text-white/70 text-sm hover:text-teal transition-colors">
         Email us
       </a>
