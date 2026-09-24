@@ -27,6 +27,7 @@ const structuredData = {
   "@type": "TravelAgency",
   name: site.name,
   image: ogImageUrl.toString(),
+  logo: new URL("/images/logo.png", Astro.site).toString(),
   url: Astro.site?.toString(),
   telephone: site.phone,
   email: site.email,
@@ -37,6 +38,20 @@ const structuredData = {
     postalCode: "WF16 0JD",
     addressCountry: "GB",
   },
+  geo: {
+    "@type": "GeoCoordinates",
+    latitude: 53.7068445,
+    longitude: -1.672783,
+  },
+  areaServed: [
+    "Heckmondwike",
+    "Batley",
+    "Dewsbury",
+    "Liversedge",
+    "Cleckheaton",
+    "Kirklees",
+    "West Yorkshire",
+  ],
   openingHoursSpecification: site.hours
     .filter((h) => h.time !== "Closed")
     .map((h) => {
@@ -68,7 +83,7 @@ function to24Hour(time: string): string {
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en-GB">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
