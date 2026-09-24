@@ -9,7 +9,7 @@ export interface PackageTier {
 export const umrahPackages: PackageTier[] = [
   {
     name: "Umrah Economy",
-    price: "From £799 pp",
+    price: "From £699 pp",
     duration: "10 nights",
     features: [
       "Return flights",
@@ -20,7 +20,7 @@ export const umrahPackages: PackageTier[] = [
   },
   {
     name: "Umrah Premium",
-    price: "From £1,299 pp",
+    price: "From £1,199 pp",
     duration: "12 nights",
     features: [
       "Return flights (direct where available)",
@@ -46,7 +46,7 @@ export const umrahPackages: PackageTier[] = [
 export const hajjPackages: PackageTier[] = [
   {
     name: "Hajj Standard",
-    price: "From £5,499 pp",
+    price: "From £7,999 pp",
     duration: "14 nights",
     features: [
       "Full Hajj rites guidance & group leader",
@@ -57,7 +57,7 @@ export const hajjPackages: PackageTier[] = [
   },
   {
     name: "Hajj VIP",
-    price: "From £8,999 pp",
+    price: "From £12,499 pp",
     duration: "16 nights",
     features: [
       "5* accommodation, closest available to Haram",
