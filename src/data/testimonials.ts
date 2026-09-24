@@ -44,4 +44,9 @@ export const testimonials: Testimonial[] = [
     rating: 5,
     context: "Money transfer",
   },
+  {
+    quote:
+      "I recently booked my trip through this agency and could not have been more satisfied. From our very first interaction, the staff were friendly, attentive, and remarkably knowledgeable, tailoring every detail to my budget, schedule, and interests. Their communication was swift, lucid, and consistently reassuring, rendering the whole process wonderfully stress-free. I recommend them unreservedly to anyone seeking a seamless, meticulously planned travel experience, and shall certainly be booking with them again.",
+    rating: 5,
+  },
 ];
