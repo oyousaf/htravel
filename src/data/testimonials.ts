@@ -1,5 +1,6 @@
 export interface Testimonial {
   quote: string;
+  rating: number;
   context?: string;
 }
 
@@ -15,20 +16,32 @@ export const googleMapsUrl =
 export const testimonials: Testimonial[] = [
   {
     quote:
-      "Honestly it was absolutely amazing service! The travel agency went above and beyond to find us a great deal on our flight to Pakistan, saving us both time and money. From start to finish, the process was smooth, professional, and stress-free.",
+      "Booking through Heckmondwike Travel & Tours has, on every occasion, been an unequivocal pleasure. I have consistently found the company to be genuinely compassionate and conscientious, ensuring that every pilgrim receives the care and support they require, whenever and wherever it may be needed.",
+    rating: 5,
+    context: "Hajj 2026",
   },
   {
     quote:
-      "From the very first interaction, the staff were friendly, attentive, and incredibly knowledgeable. They took the time to understand exactly what I was looking for and found options that fit my budget perfectly.",
+      "My inaugural Hajj in 2026 with Heckmondwike Travel & Tours was, without reservation, a five-star experience — truly the journey of a lifetime.",
+    rating: 5,
+    context: "Hajj 2026",
   },
   {
     quote:
-      "Thank you to Heckmondwike Travel & Tours for all the efforts they went through to make our Hajj journey the best.",
-    context: "Hajj booking",
+      "We booked our Hajj 2026 package with Heckmondwike Travel & Tours, and the entirety of the experience surpassed our expectations. Every aspect was organised with meticulous care, allowing us to devote our full attention to worship rather than logistical concerns.",
+    rating: 5,
+    context: "Hajj 2026",
   },
   {
     quote:
-      "Booked a flight to Turkey, very friendly staff, would definitely be booking again through this business!",
-    context: "Turkey booking",
+      "The service was truly exceptional — the agency went above and beyond to secure an excellent fare for our flight to Pakistan, saving us considerable time and expense. The entire process was seamless, professional, and thoroughly stress-free.",
+    rating: 5,
+    context: "Pakistan trip",
+  },
+  {
+    quote:
+      "The finest in the business — I am thoroughly impressed by the swiftness of their money transfer service and the impeccable organisation of everything they offer.",
+    rating: 5,
+    context: "Money transfer",
   },
 ];

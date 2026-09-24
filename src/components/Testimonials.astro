@@ -26,13 +26,24 @@ const stars = Array.from({ length: 5 });
     </a>
   </div>
 
-  <div class="grid sm:grid-cols-2 gap-6">
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
     {
-      testimonials.map((t) => (
-        <div data-animate class="rounded-2xl bg-navy-light/50 border border-white/10 p-6 flex flex-col gap-4">
-          <div class="flex text-teal">
-            {stars.map((_, i) => (
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
+      testimonials.map((t, i) => (
+        <div
+          data-animate
+          class:list={[
+            "rounded-2xl bg-navy-light/50 border border-white/10 p-6 flex flex-col gap-4",
+            i === testimonials.length - 1 && testimonials.length % 3 === 1 ? "lg:col-start-2" : "",
+          ]}
+        >
+          <div class="flex">
+            {stars.map((_, j) => (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                class:list={["h-4 w-4", j < t.rating ? "text-teal" : "text-white/20"]}
+              >
                 <path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.3 6-5.4-3.1-5.4 3.1 1.3-6-4.6-4.1 6.1-.6L10 1.5Z" />
               </svg>
             ))}
