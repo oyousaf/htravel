@@ -15,9 +15,6 @@ body {
   font-family: var(--font-sans);
 }
 
-/* Staggered fade-up-on-scroll: applied to any [data-animate] element.
-   Direct [data-animate] children of a [data-animate-group] get an
-   incremental transition-delay so they cascade in one after another. */
 [data-animate] {
   opacity: 0;
   transform: translateY(24px);

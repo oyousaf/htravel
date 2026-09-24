@@ -31,8 +31,8 @@ export const site = {
   ],
   nav: [
     { label: "Destinations", href: "/destinations" },
-    { label: "Hajj & Umrah", href: "/packages/hajj-umrah" },
-    { label: "Visa Info", href: "/visa-info" },
+    { label: "Hajj & Umrah", href: "/packages" },
+    { label: "Visa Info", href: "/visa" },
     { label: "About", href: "/about" },
     { label: "Contact", href: "/contact" },
   ],
