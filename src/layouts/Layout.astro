@@ -10,12 +10,14 @@ interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  noindex?: boolean;
 }
 
 const {
   title,
   description = "Heckmondwike Travel & Tours — flights, holidays, and Hajj & Umrah packages from Heckmondwike, West Yorkshire.",
   ogImage = "/images/opening-day.png",
+  noindex = false,
 } = Astro.props;
 
 const fullTitle = `${title} | Heckmondwike Travel & Tours`;
@@ -96,6 +98,7 @@ function to24Hour(time: string): string {
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <title>{fullTitle}</title>
 
     <meta property="og:type" content="website" />

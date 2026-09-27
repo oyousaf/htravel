@@ -1,4 +1,5 @@
 import type { APIRoute } from "astro";
+import { getManualRates } from "../../lib/manualRates";
 
 export const prerender = false;
 
@@ -41,25 +42,33 @@ async function fetchLiveRates(): Promise<RateCache> {
   return { base: "GBP", rates, updatedAt: new Date().toISOString() };
 }
 
-export const GET: APIRoute = async () => {
+async function getMarketRates(): Promise<RateCache & { source: string } | null> {
   const isStale = !cache || Date.now() - new Date(cache.updatedAt).getTime() > CACHE_TTL_MS;
-
-  if (!isStale && cache) {
-    return Response.json({ ...cache, source: "cache" });
-  }
+  if (!isStale && cache) return { ...cache, source: "cache" };
 
   try {
-    const live = await fetchLiveRates();
-    cache = live;
-    return Response.json({ ...live, source: "live" });
-  } catch (err) {
-    if (cache) {
-      // Serve stale data rather than nothing if the upstream API hiccups.
-      return Response.json({ ...cache, source: "stale-fallback" });
-    }
-    return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }),
-      { status: 502, headers: { "Content-Type": "application/json" } }
-    );
+    cache = await fetchLiveRates();
+    return { ...cache, source: "live" };
+  } catch {
+    // Serve stale data rather than nothing if the upstream API hiccups.
+    return cache ? { ...cache, source: "stale-fallback" } : null;
   }
+}
+
+// Manual rates are read on every request (not cached) so the client's updates
+// show immediately.
+export const GET: APIRoute = async () => {
+  const [market, manual] = await Promise.all([
+    getMarketRates(),
+    getManualRates().catch(() => null),
+  ]);
+
+  if (!market && !manual) {
+    return new Response(JSON.stringify({ error: "Rates unavailable" }), {
+      status: 502,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  return Response.json({ market, manual });
 };

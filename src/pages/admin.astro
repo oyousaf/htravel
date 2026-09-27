@@ -1,0 +1,96 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Section from "../components/Section.astro";
+
+const inputClass =
+  "w-full rounded-lg bg-navy-dark border border-white/20 px-4 py-3 text-white text-lg focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/50";
+---
+
+<Layout title="Update Exchange Rate" description="Staff only." noindex>
+  <Section>
+    <div class="mx-auto max-w-md rounded-2xl bg-navy-light/50 border border-white/10 p-6 sm:p-8">
+      <h1 class="text-2xl font-bold text-white mb-1">Update today's rate</h1>
+      <p class="text-white/60 text-sm mb-6">
+        GBP to PKR, as shown on the homepage. Changes appear on the site straight away.
+      </p>
+
+      <form id="rates-form" class="space-y-4">
+        <div>
+          <label for="cashPickup" class="block text-sm text-white/70 mb-1">Cash pick-up</label>
+          <input id="cashPickup" name="cashPickup" type="number" inputmode="decimal" step="0.01" min="0" required class={inputClass} />
+        </div>
+        <div>
+          <label for="bankTransfer" class="block text-sm text-white/70 mb-1">Bank transfer</label>
+          <input id="bankTransfer" name="bankTransfer" type="number" inputmode="decimal" step="0.01" min="0" required class={inputClass} />
+        </div>
+        <div>
+          <label for="date" class="block text-sm text-white/70 mb-1">Rate date</label>
+          <input id="date" name="date" type="date" required class={inputClass} />
+        </div>
+        <div>
+          <label for="password" class="block text-sm text-white/70 mb-1">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required class={inputClass} />
+        </div>
+        <button
+          type="submit"
+          class="w-full rounded-full bg-teal px-6 py-3 text-sm font-semibold text-navy-dark hover:bg-teal-dark transition-colors disabled:opacity-50"
+        >
+          Save rates
+        </button>
+        <p id="rates-status" class="text-sm hidden" role="status"></p>
+      </form>
+    </div>
+  </Section>
+</Layout>
+
+<script>
+  const form = document.getElementById("rates-form") as HTMLFormElement;
+  const status = document.getElementById("rates-status") as HTMLElement;
+  const button = form.querySelector("button") as HTMLButtonElement;
+  const field = (name: string) => form.elements.namedItem(name) as HTMLInputElement;
+
+  const today = new Date();
+  const pad = (n: number) => String(n).padStart(2, "0");
+  field("date").value = `${today.getFullYear()}-${pad(today.getMonth() + 1)}-${pad(today.getDate())}`;
+
+  // Prefill with whatever is currently live.
+  fetch("/api/exchange-rate")
+    .then((r) => r.json())
+    .then((data) => {
+      if (data.manual) {
+        field("cashPickup").value = String(data.manual.cashPickup);
+        field("bankTransfer").value = String(data.manual.bankTransfer);
+      }
+    })
+    .catch(() => {});
+
+  function show(message: string, ok: boolean) {
+    status.textContent = message;
+    status.classList.remove("hidden", "text-red-400", "text-teal");
+    status.classList.add(ok ? "text-teal" : "text-red-400");
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    button.disabled = true;
+    try {
+      const res = await fetch("/api/admin/rates", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cashPickup: field("cashPickup").value,
+          bankTransfer: field("bankTransfer").value,
+          date: field("date").value,
+          password: field("password").value,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Could not save.");
+      show("Saved — the homepage now shows these rates.", true);
+    } catch (err) {
+      show(err instanceof Error ? err.message : "Could not save.", false);
+    } finally {
+      button.disabled = false;
+    }
+  });
+</script>
