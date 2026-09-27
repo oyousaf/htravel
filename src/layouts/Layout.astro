@@ -8,6 +8,8 @@ import { googleRating, googleReviewCount } from "../data/testimonials";
 
 interface Props {
   title: string;
+  // Overrides the default "<title> | Heckmondwike Travel & Tours" pattern (e.g. brand-first on the homepage).
+  fullTitle?: string;
   description?: string;
   ogImage?: string;
   noindex?: boolean;
@@ -15,12 +17,23 @@ interface Props {
 
 const {
   title,
-  description = "Heckmondwike Travel & Tours — flights, holidays, and Hajj & Umrah packages from Heckmondwike, West Yorkshire.",
+  fullTitle: fullTitleOverride,
+  description = "Heckmondwike Travel & Tours — international flights, Hajj & Umrah packages, money transfer and cargo services from Heckmondwike, West Yorkshire.",
   ogImage = "/images/opening-day.png",
   noindex = false,
 } = Astro.props;
 
-const fullTitle = `${title} | Heckmondwike Travel & Tours`;
+const fullTitle = fullTitleOverride ?? `${title} | Heckmondwike Travel & Tours`;
+const isHome = Astro.url.pathname === "/";
+
+// Tells Google the site name to show in results instead of the bare domain.
+const websiteData = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: site.name,
+  alternateName: ["Heckmondwike Travel", "Hecky Travel"],
+  url: Astro.site?.toString(),
+};
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 const ogImageUrl = new URL(ogImage, Astro.site);
 
@@ -93,8 +106,11 @@ function to24Hour(time: string): string {
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
@@ -115,6 +131,7 @@ function to24Hour(time: string): string {
     <meta name="twitter:image" content={ogImageUrl} />
 
     <script type="application/ld+json" set:html={JSON.stringify(structuredData)} is:inline />
+    {isHome && <script type="application/ld+json" set:html={JSON.stringify(websiteData)} is:inline />}
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
