@@ -23,7 +23,7 @@ export const site = {
   hours: [
     { day: "Monday", time: "10:00 AM – 6:00 PM" },
     { day: "Tuesday", time: "10:00 AM – 6:00 PM" },
-    { day: "Wednesday", time: "10:00 AM – 4:00 PM" },
+    { day: "Wednesday", time: "10:00 AM – 6:00 PM" },
     { day: "Thursday", time: "10:00 AM – 6:00 PM" },
     { day: "Friday", time: "10:00 AM – 6:00 PM" },
     { day: "Saturday", time: "11:00 AM – 4:00 PM" },
