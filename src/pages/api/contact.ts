@@ -82,7 +82,28 @@ function renderEmailHtml({
 </html>`;
 }
 
-export const POST: APIRoute = async ({ request }) => {
+// Fails closed: with no secret configured, every submission is rejected rather
+// than letting bots through unchecked.
+async function verifyTurnstile(token: string, remoteIp: string | undefined): Promise<boolean> {
+  const secret = import.meta.env.TURNSTILE_SECRET_KEY;
+  if (!secret || !token) return false;
+
+  const body = new URLSearchParams({ secret, response: token });
+  if (remoteIp) body.set("remoteip", remoteIp);
+
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      body,
+    });
+    const json = (await res.json()) as { success?: boolean };
+    return json.success === true;
+  } catch {
+    return false;
+  }
+}
+
+export const POST: APIRoute = async ({ request, clientAddress }) => {
   const apiKey = import.meta.env.RESEND_API_KEY;
   const toEmail = import.meta.env.CONTACT_TO_EMAIL;
   const fromEmail = import.meta.env.CONTACT_FROM_EMAIL ?? "onboarding@resend.dev";
@@ -95,6 +116,18 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const form = await request.formData();
+
+  const turnstileOk = await verifyTurnstile(
+    String(form.get("cf-turnstile-response") ?? ""),
+    clientAddress,
+  );
+  if (!turnstileOk) {
+    return new Response(JSON.stringify({ error: "Verification failed — please try again." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   const name = String(form.get("name") ?? "").trim();
   const email = String(form.get("email") ?? "").trim();
   const phone = String(form.get("phone") ?? "").trim();

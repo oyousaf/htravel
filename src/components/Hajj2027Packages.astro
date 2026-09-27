@@ -1,0 +1,89 @@
+---
+import { hajj2027 as h } from "../data/hajjUmrah";
+---
+
+<div class="flex flex-col gap-6">
+  <ul data-animate class="flex flex-wrap gap-2 text-sm">
+    <li class="rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1.5 text-amber-200 font-medium">
+      {h.eligibility}
+    </li>
+    <li class="rounded-full bg-white/10 px-4 py-1.5 text-white/80">{h.maktab}</li>
+    <li class="rounded-full bg-white/10 px-4 py-1.5 text-white/80">Led by {h.leader}</li>
+  </ul>
+
+  <div class="grid lg:grid-cols-2 gap-6">
+    {
+      h.packages.map((p) => (
+        <article
+          data-animate
+          class="rounded-3xl border border-amber-300/40 bg-navy-light p-6 sm:p-8 flex flex-col gap-6"
+        >
+          <header>
+            <h3 class="text-2xl font-bold text-white">{p.name}</h3>
+            <dl class="mt-3 grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <dt class="text-white/55 text-xs uppercase tracking-wide">Departure</dt>
+                <dd class="text-white">{p.departure}</dd>
+              </div>
+              <div>
+                <dt class="text-white/55 text-xs uppercase tracking-wide">Return</dt>
+                <dd class="text-white">{p.return}</dd>
+              </div>
+            </dl>
+          </header>
+
+          <ul class="space-y-2">
+            {p.hotels.map((hotel) => (
+              <li class="rounded-2xl bg-navy-dark/60 border border-white/10 px-4 py-3">
+                <p class="text-teal text-xs font-semibold uppercase tracking-wide">{hotel.city}</p>
+                <p class="text-white font-semibold">
+                  {hotel.name}
+                  {hotel.detail && <span class="text-white/60 font-normal text-sm"> · {hotel.detail}</span>}
+                </p>
+              </li>
+            ))}
+          </ul>
+
+          <div class="grid grid-cols-3 divide-x divide-white/10 rounded-2xl border border-white/10 bg-navy-dark/40 text-center">
+            {p.rooms.map((r) => (
+              <div class="px-2 py-4">
+                <p class="text-white/60 text-xs uppercase tracking-wide">{r.label}</p>
+                <p class="text-amber-300 text-xl sm:text-2xl font-bold mt-1">{r.price}</p>
+                <p class="text-white/55 text-xs">per person</p>
+              </div>
+            ))}
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <div
+    data-animate
+    class="rounded-3xl border border-white/10 bg-navy-light/50 p-6 sm:p-8 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6"
+  >
+    <div>
+      <h4 class="text-white font-semibold mb-3">Included in both packages</h4>
+      <ul class="flex flex-wrap gap-2">
+        {h.includes.map((i) => (
+          <li class="rounded-full bg-white/10 px-3 py-1 text-sm text-white/80">✓ {i}</li>
+        ))}
+      </ul>
+    </div>
+    <div class="shrink-0">
+      <p class="text-white/60 text-sm mb-2">Speak to {h.leader}</p>
+      <ul class="flex flex-wrap gap-2">
+        {h.contacts.map((c) => (
+          <li>
+            <a
+              href={c.href}
+              class="inline-flex rounded-full bg-teal px-4 py-2 text-sm font-semibold text-navy-dark hover:bg-teal-dark transition-colors"
+            >
+              {c.number}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </div>
+</div>

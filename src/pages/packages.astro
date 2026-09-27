@@ -1,8 +1,10 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import Section from "../components/Section.astro";
-import PackageCard from "../components/PackageCard.astro";
-import { umrahPackages, hajjPackages } from "../data/hajjUmrah";
+import HajjDeadline from "../components/HajjDeadline.astro";
+import OctoberUmrahPackage from "../components/OctoberUmrahPackage.astro";
+import WhatsAppButton from "../components/WhatsAppButton.astro";
+import Hajj2027Packages from "../components/Hajj2027Packages.astro";
 import { site } from "../data/site";
 ---
 
@@ -27,16 +29,38 @@ import { site } from "../data/site";
 
   <Section>
     <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-8">Umrah Packages</h2>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {umrahPackages.map((pkg) => <PackageCard pkg={pkg} />)}
+    <OctoberUmrahPackage />
+    <div
+      data-animate
+      class="mt-6 rounded-3xl border border-white/10 bg-navy-light/50 p-6 sm:p-10 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10"
+    >
+      <div class="flex-1">
+        <h3 class="text-xl sm:text-2xl font-bold text-white mb-3">
+          Don't want to go in a group?
+        </h3>
+        <p class="text-white/70 leading-relaxed max-w-2xl">
+          Would you rather travel independently, or with just your family and friends? Not a
+          problem. We'll build your Umrah around you — your dates, your hotels, your pace — and
+          take care of the flights, visas and transfers, so all that's left for you is the journey
+          itself.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3 shrink-0">
+        <WhatsAppButton />
+        <a
+          href="/contact"
+          class="inline-flex rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+        >
+          Send an Enquiry
+        </a>
+      </div>
     </div>
   </Section>
 
   <Section class="bg-navy-light/30">
-    <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-8">Hajj Packages</h2>
-    <div class="grid sm:grid-cols-2 gap-6 max-w-4xl">
-      {hajjPackages.map((pkg) => <PackageCard pkg={pkg} />)}
-    </div>
+    <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-6">Hajj 2027 Packages</h2>
+    <HajjDeadline class="mb-6" />
+    <Hajj2027Packages />
   </Section>
 
   <Section>

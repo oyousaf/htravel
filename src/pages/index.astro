@@ -6,6 +6,8 @@ import ExchangeRate from "../components/ExchangeRate.tsx";
 import Testimonials from "../components/Testimonials.astro";
 import LiveFlights from "../components/LiveFlights.tsx";
 import WhatsAppButton from "../components/WhatsAppButton.astro";
+import HajjDeadline from "../components/HajjDeadline.astro";
+import MoneyTransferPartners from "../components/MoneyTransferPartners.astro";
 import { destinations } from "../data/destinations";
 import { site } from "../data/site";
 ---
@@ -52,11 +54,11 @@ import { site } from "../data/site";
     <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-6">
       {
         [
-          { title: "Flight Bookings", desc: "Best-value fares to Pakistan, the Gulf, and worldwide." },
-          { title: "Holiday Packages", desc: "All-inclusive family holidays and city breaks." },
-          { title: "Hajj & Umrah", desc: "Guided packages with trusted, experienced group leaders." },
+          { title: "International Flights", desc: "Best-value fares to Pakistan, the Gulf, and worldwide." },
+          { title: "Money Transfer", desc: "Send money abroad quickly via Intercity, Western Union and Ria." },
+          { title: "Hajj & Umrah", desc: "Bespoke Umrah and guided Hajj — travel independently or with a group." },
           { title: "Visa Assistance", desc: "Support with visa applications and documentation." },
-          { title: "Cargo Services", desc: "Sending parcels back home? We accept cargo every Wednesday." },
+          { title: "Cargo Services", desc: "Sending cargo back home? We accept it every Wednesday." },
         ].map((s, i, arr) => (
           <div
             data-animate
@@ -71,6 +73,7 @@ import { site } from "../data/site";
         ))
       }
     </div>
+    <MoneyTransferPartners />
   </Section>
 
   <!-- Live flights -->
@@ -97,10 +100,11 @@ import { site } from "../data/site";
           Sacred Journeys, Handled With Care
         </h2>
         <p class="text-white/70 mb-6">
-          From economy Umrah trips to full-service VIP Hajj packages, our experienced team takes
-          care of flights, accommodation, transfers, and visas — so you can focus on your
-          pilgrimage.
+          From bespoke Umrah trips — independent or group — to full-service Hajj 2027 packages, our
+          experienced team takes care of flights, accommodation, transfers, and visas — so you can
+          focus on your pilgrimage.
         </p>
+        <HajjDeadline class="mb-6" />
         <a
           href="/packages"
           class="inline-flex rounded-full bg-teal px-6 py-3 text-sm font-semibold text-navy-dark hover:bg-teal-dark transition-colors"

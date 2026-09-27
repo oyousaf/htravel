@@ -1,0 +1,32 @@
+---
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+---
+
+<div
+  data-hajj-deadline
+  data-expires="2026-10-01T00:00:00+01:00"
+  class:list={[
+    "flex items-start gap-3 rounded-2xl border border-amber-300/40 bg-amber-300/10 px-5 py-4 text-sm",
+    className,
+  ]}
+>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5 shrink-0 text-amber-300 mt-0.5" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" />
+    <path stroke-linecap="round" d="M12 7v5l3 2" />
+  </svg>
+  <p class="text-white/85">
+    <span class="font-semibold text-amber-200">Hajj 2027 bookings close 30 September 2026.</span>{" "}
+    Contact us before the deadline to secure your place.
+  </p>
+</div>
+
+<script>
+  // Pages are prerendered, so hide the notice client-side once the deadline passes.
+  document.querySelectorAll<HTMLElement>("[data-hajj-deadline]").forEach((el) => {
+    if (Date.now() >= Date.parse(el.dataset.expires ?? "")) el.remove();
+  });
+</script>
