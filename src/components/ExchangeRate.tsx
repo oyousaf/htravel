@@ -97,7 +97,7 @@ export default function ExchangeRate() {
       ) : (
         <>
           <p className="text-xs sm:text-sm uppercase tracking-widest text-teal font-semibold mb-2">
-            Live Exchange Rate
+            Our Exchange Rate
           </p>
           <div className="flex items-baseline gap-3 flex-wrap">
             <span className="text-lg sm:text-xl text-white/70">1 GBP =</span>
