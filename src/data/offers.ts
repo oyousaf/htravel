@@ -3,6 +3,7 @@ export interface Offer {
   items: { label: string; price: string; unit?: string }[];
   deal?: string;
   theme: "green" | "brown" | "maroon";
+  image: string;
 }
 
 export const offers: Offer[] = [
@@ -14,6 +15,7 @@ export const offers: Offer[] = [
     ],
     deal: "Buy both for only £25",
     theme: "green",
+    image: "/images/offers/ihram.jpg",
   },
   {
     title: "Fresh Dates",
@@ -23,6 +25,7 @@ export const offers: Offer[] = [
     ],
     deal: "Limited stock available",
     theme: "brown",
+    image: "/images/offers/dates.jpg",
   },
   {
     title: "Tasbih",
@@ -32,5 +35,6 @@ export const offers: Offer[] = [
     ],
     deal: "Normal tasbih: 3 for £5",
     theme: "maroon",
+    image: "/images/offers/tasbih.jpg",
   },
 ];

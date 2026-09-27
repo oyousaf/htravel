@@ -19,10 +19,17 @@ const themes = {
         <article
           data-animate
           class:list={[
-            "rounded-2xl border border-amber-300/25 bg-linear-to-br p-6 flex flex-col gap-4",
+            "relative isolate overflow-hidden rounded-2xl border border-amber-300/25 bg-linear-to-br p-6 flex flex-col gap-4",
             themes[o.theme],
           ]}
         >
+          <img
+            src={o.image}
+            alt=""
+            loading="lazy"
+            class="absolute inset-y-0 right-0 -z-10 h-full w-3/4 object-cover opacity-35"
+            style="mask-image: linear-gradient(to left, black 20%, transparent); -webkit-mask-image: linear-gradient(to left, black 20%, transparent);"
+          />
           <h4 class="text-xl font-bold text-amber-200">{o.title}</h4>
           <ul class="flex-1 divide-y divide-white/10">
             {o.items.map((i) => (
