@@ -1,77 +1,70 @@
 import type { APIRoute } from "astro";
+import { airportNames } from "../../data/airports";
+import { airlineNames } from "../../data/airlines";
 
 export const prerender = false;
 
-const CACHE_TTL_MS = 5 * 60 * 1000; // refresh every 5 minutes — respects OpenSky's rate limit
-// Rough bounding box around the UK.
-const BBOX = { lamin: 49.8, lomin: -8.6, lamax: 60.9, lomax: 1.8 };
+const CACHE_TTL_MS = 5 * 60 * 1000; // refresh every 5 minutes
+const AIRPORT_IATA = "MAN"; // Manchester Airport
 
-const TOKEN_URL =
-  "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token";
-
-let token: { value: string; expiresAt: number } | null = null;
-
-async function getAccessToken(): Promise<string | null> {
-  const clientId = import.meta.env.OPENSKY_CLIENT_ID;
-  const clientSecret = import.meta.env.OPENSKY_CLIENT_SECRET;
-  if (!clientId || !clientSecret) return null;
-
-  if (token && Date.now() < token.expiresAt) return token.value;
-
-  const res = await fetch(TOKEN_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      grant_type: "client_credentials",
-      client_id: clientId,
-      client_secret: clientSecret,
-    }),
-  });
-  if (!res.ok) throw new Error(`OpenSky token request failed: ${res.status}`);
-
-  const json = await res.json();
-  // Tokens last 30 minutes; refresh a little early to be safe.
-  token = { value: json.access_token, expiresAt: Date.now() + (json.expires_in - 30) * 1000 };
-  return token.value;
+interface AirLabsFlight {
+  flight_iata?: string;
+  flight_icao?: string;
+  airline_iata?: string;
+  arr_iata?: string;
+  dep_time?: string;
+  dep_terminal?: string | null;
+  dep_gate?: string | null;
+  status?: string;
 }
 
 interface FlightSample {
-  callsign: string;
-  originCountry: string;
-  altitudeM: number | null;
-  velocityMs: number | null;
+  flightNumber: string;
+  airline: string;
+  destinationCode: string;
+  destinationName: string;
+  depTime: string | null;
+  terminal: string | null;
+  gate: string | null;
 }
 
 interface FlightsCache {
-  count: number;
+  airport: string;
   sample: FlightSample[];
   updatedAt: string;
 }
 
 let cache: FlightsCache | null = null;
 
-async function fetchLiveFlights(): Promise<FlightsCache> {
-  const accessToken = await getAccessToken();
-  const url = `https://opensky-network.org/api/states/all?lamin=${BBOX.lamin}&lomin=${BBOX.lomin}&lamax=${BBOX.lamax}&lomax=${BBOX.lomax}`;
-  const res = await fetch(url, {
-    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
-  });
-  if (!res.ok) throw new Error(`OpenSky request failed: ${res.status}`);
+async function fetchUpcomingDepartures(): Promise<FlightsCache> {
+  const apiKey = import.meta.env.AIRLABS_API_KEY;
+  if (!apiKey) throw new Error("AIRLABS_API_KEY is not configured");
+
+  const url = `https://airlabs.co/api/v9/schedules?dep_iata=${AIRPORT_IATA}&api_key=${apiKey}`;
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`AirLabs request failed: ${res.status}`);
 
   const json = await res.json();
-  const states: unknown[][] = json.states ?? [];
+  const flights: AirLabsFlight[] = Array.isArray(json.response) ? json.response : [];
 
-  const sample: FlightSample[] = states
-    .filter((s) => typeof s[1] === "string" && s[1].trim().length > 0)
-    .slice(0, 6)
-    .map((s) => ({
-      callsign: (s[1] as string).trim(),
-      originCountry: s[2] as string,
-      altitudeM: s[7] as number | null,
-      velocityMs: s[9] as number | null,
-    }));
+  const sample: FlightSample[] = flights
+    .filter((f) => f.status === "scheduled" && f.dep_time && f.flight_iata)
+    .sort((a, b) => (a.dep_time! > b.dep_time! ? 1 : -1))
+    .slice(0, 10)
+    .map((f) => {
+      const code = f.arr_iata ?? "—";
+      return {
+        flightNumber: f.flight_iata ?? f.flight_icao ?? "—",
+        airline: (f.airline_iata && airlineNames[f.airline_iata]) ?? f.airline_iata ?? "",
+        destinationCode: code,
+        destinationName: airportNames[code] ?? code,
+        depTime: f.dep_time ?? null,
+        terminal: f.dep_terminal ?? null,
+        gate: f.dep_gate ?? null,
+      };
+    });
 
-  return { count: states.length, sample, updatedAt: new Date().toISOString() };
+  return { airport: AIRPORT_IATA, sample, updatedAt: new Date().toISOString() };
 }
 
 export const GET: APIRoute = async () => {
@@ -82,7 +75,7 @@ export const GET: APIRoute = async () => {
   }
 
   try {
-    const live = await fetchLiveFlights();
+    const live = await fetchUpcomingDepartures();
     cache = live;
     return Response.json({ ...live, source: "live" });
   } catch (err) {
