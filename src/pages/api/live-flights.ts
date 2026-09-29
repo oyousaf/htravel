@@ -13,6 +13,7 @@ interface AirLabsFlight {
   airline_iata?: string;
   arr_iata?: string;
   dep_time?: string;
+  dep_time_utc?: string;
   dep_terminal?: string | null;
   dep_gate?: string | null;
   status?: string;
@@ -47,9 +48,15 @@ async function fetchUpcomingDepartures(): Promise<FlightsCache> {
   const json = await res.json();
   const flights: AirLabsFlight[] = Array.isArray(json.response) ? json.response : [];
 
+  const now = Date.now();
+
   const sample: FlightSample[] = flights
-    .filter((f) => f.status === "scheduled" && f.dep_time && f.flight_iata)
-    .sort((a, b) => (a.dep_time! > b.dep_time! ? 1 : -1))
+    .filter((f) => {
+      if (f.status === "cancelled" || !f.dep_time || !f.dep_time_utc || !f.flight_iata) return false;
+      const depTimeMs = new Date(`${f.dep_time_utc}Z`).getTime();
+      return !Number.isNaN(depTimeMs) && depTimeMs > now;
+    })
+    .sort((a, b) => (a.dep_time_utc! > b.dep_time_utc! ? 1 : -1))
     .slice(0, 10)
     .map((f) => {
       const code = f.arr_iata ?? "—";

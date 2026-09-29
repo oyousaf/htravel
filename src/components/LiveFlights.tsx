@@ -75,12 +75,12 @@ export default function LiveFlights() {
             {(() => {
               const visible = data.sample.slice(0, COLLAPSED_COUNT);
               const extra = data.sample.slice(COLLAPSED_COUNT);
-              const renderFlight = (f: FlightSample, isLast: boolean) => (
+              const renderFlight = (f: FlightSample, isLast: boolean, isFirstExtra = false) => (
                 <li
                   key={f.flightNumber}
                   className={`flex items-center justify-between gap-3 pb-3 ${
                     isLast ? "" : "border-b border-white/5"
-                  }`}
+                  } ${isFirstExtra ? "pt-3" : ""}`}
                 >
                   <div className="flex flex-col min-w-0">
                     <span className="text-white font-medium truncate">{f.destinationName}</span>
@@ -110,11 +110,7 @@ export default function LiveFlights() {
                       style={{ gridTemplateRows: expanded ? "1fr" : "0fr" }}
                     >
                       <ul className="overflow-hidden space-y-3 text-sm">
-                        {extra.map((f, i) => (
-                          <div key={f.flightNumber} className={i === 0 ? "pt-3" : undefined}>
-                            {renderFlight(f, i === extra.length - 1)}
-                          </div>
-                        ))}
+                        {extra.map((f, i) => renderFlight(f, i === extra.length - 1, i === 0))}
                       </ul>
                     </div>
                   )}
