@@ -2,9 +2,38 @@ import type { APIRoute } from "astro";
 
 export const prerender = false;
 
-const CACHE_TTL_MS = 5 * 60 * 1000; // refresh every 5 minutes — respects OpenSky's anonymous rate limit
+const CACHE_TTL_MS = 5 * 60 * 1000; // refresh every 5 minutes — respects OpenSky's rate limit
 // Rough bounding box around the UK.
 const BBOX = { lamin: 49.8, lomin: -8.6, lamax: 60.9, lomax: 1.8 };
+
+const TOKEN_URL =
+  "https://auth.opensky-network.org/auth/realms/opensky-network/protocol/openid-connect/token";
+
+let token: { value: string; expiresAt: number } | null = null;
+
+async function getAccessToken(): Promise<string | null> {
+  const clientId = import.meta.env.OPENSKY_CLIENT_ID;
+  const clientSecret = import.meta.env.OPENSKY_CLIENT_SECRET;
+  if (!clientId || !clientSecret) return null;
+
+  if (token && Date.now() < token.expiresAt) return token.value;
+
+  const res = await fetch(TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+    }),
+  });
+  if (!res.ok) throw new Error(`OpenSky token request failed: ${res.status}`);
+
+  const json = await res.json();
+  // Tokens last 30 minutes; refresh a little early to be safe.
+  token = { value: json.access_token, expiresAt: Date.now() + (json.expires_in - 30) * 1000 };
+  return token.value;
+}
 
 interface FlightSample {
   callsign: string;
@@ -22,8 +51,11 @@ interface FlightsCache {
 let cache: FlightsCache | null = null;
 
 async function fetchLiveFlights(): Promise<FlightsCache> {
+  const accessToken = await getAccessToken();
   const url = `https://opensky-network.org/api/states/all?lamin=${BBOX.lamin}&lomin=${BBOX.lomin}&lamax=${BBOX.lamax}&lomax=${BBOX.lomax}`;
-  const res = await fetch(url);
+  const res = await fetch(url, {
+    headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
+  });
   if (!res.ok) throw new Error(`OpenSky request failed: ${res.status}`);
 
   const json = await res.json();

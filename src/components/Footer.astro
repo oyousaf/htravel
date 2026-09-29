@@ -2,9 +2,6 @@
 import { site } from "../data/site";
 import BrandMark from "./BrandMark.astro";
 import SocialIcons from "./SocialIcons.astro";
-
-const today = new Date().getDay(); // 0 = Sunday
-const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours order
 ---
 
 <footer class="border-t border-white/10 bg-navy-dark mt-24">
@@ -47,10 +44,10 @@ const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours ord
 
     <div>
       <h3 class="text-teal font-semibold mb-3 text-sm uppercase tracking-wide">Opening Hours</h3>
-      <ul class="text-white/70 text-sm space-y-1">
+      <ul class="text-white/70 text-sm space-y-1" data-hours-list>
         {
           site.hours.map((h, i) => (
-            <li class:list={["flex justify-between gap-4", i === dayIndex ? "text-teal font-medium" : ""]}>
+            <li class="flex justify-between gap-4" data-day-index={i}>
               <span>{h.day}</span>
               <span>{h.time}</span>
             </li>
@@ -65,3 +62,10 @@ const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours ord
     <p>&copy; {new Date().getFullYear()} {site.name}. All rights reserved.</p>
   </div>
 </footer>
+
+<script>
+  const today = new Date().getDay(); // 0 = Sunday
+  const dayIndex = (today + 6) % 7; // shift so Monday = 0, matches site.hours order
+  const activeItem = document.querySelector(`[data-hours-list] [data-day-index="${dayIndex}"]`);
+  activeItem?.classList.add("text-teal", "font-medium");
+</script>
