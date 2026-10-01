@@ -60,7 +60,7 @@ export default function ExchangeRate() {
 
   const manual = data?.manual ?? null;
   const market = data?.market ?? null;
-  const otherCurrencies = CURRENCIES.filter((c) => c !== "PKR");
+  //const otherCurrencies = CURRENCIES.filter((c) => c !== "PKR");
 
   return (
     <div className="rounded-2xl border border-teal/30 bg-navy-light/60 backdrop-blur px-6 py-5 sm:px-8 sm:py-6 shadow-xl">
@@ -120,7 +120,7 @@ export default function ExchangeRate() {
         </>
       )}
 
-      {(market || !data) && (
+      {/* {(market || !data) && (
         <div className="mt-4 pt-4 border-t border-white/10 grid grid-cols-3 gap-x-4 gap-y-2">
           {otherCurrencies.map((code) => (
             <div key={code} className="flex items-center gap-1.5 text-sm">
@@ -132,7 +132,7 @@ export default function ExchangeRate() {
             </div>
           ))}
         </div>
-      )}
+      )} */}
     </div>
   );
 }
