@@ -1,6 +1,7 @@
 export const octoberUmrah = {
   name: "October Umrah Package",
   nights: 12,
+  departs: "2026-10-18T00:00:00+01:00",
   dates: "18 – 30 October 2026",
   leader: "Al-Hajj Tahir Nawaz",
   hotels: [
@@ -47,6 +48,7 @@ export const octoberUmrah = {
 
 export const hajj2027 = {
   leader: "Al-Hajj Tahir Nawaz",
+  departs: "2027-05-04T00:00:00+01:00",
   maktab: "Maktab B, Zone 2",
   eligibility: "Travelling from the UK on a Pakistani passport",
   includes: ["Visas", "Flights", "Hotels", "Ziyarat", "Private transport", "Qurbani"],

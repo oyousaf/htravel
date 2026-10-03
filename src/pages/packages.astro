@@ -6,6 +6,7 @@ import OctoberUmrahPackage from "../components/OctoberUmrahPackage.astro";
 import WhatsAppButton from "../components/WhatsAppButton.astro";
 import Hajj2027Packages from "../components/Hajj2027Packages.astro";
 import { site } from "../data/site";
+import { octoberUmrah, hajj2027 } from "../data/hajjUmrah";
 ---
 
 <Layout
@@ -27,41 +28,63 @@ import { site } from "../data/site";
     </div>
   </section>
 
-  <Section>
-    <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-8">Umrah Packages</h2>
-    <OctoberUmrahPackage />
-    <div
-      data-animate
-      class="mt-6 rounded-3xl border border-white/10 bg-navy-light/50 p-6 sm:p-10 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10"
-    >
-      <div class="flex-1">
-        <h3 class="text-xl sm:text-2xl font-bold text-white mb-3">
-          Don't want to go in a group?
-        </h3>
-        <p class="text-white/70 leading-relaxed max-w-2xl">
-          Would you rather travel independently, or with just your family and friends? Not a
-          problem. We'll build your Umrah around you — your dates, your hotels, your pace — and
-          take care of the flights, visas and transfers, so all that's left for you is the journey
-          itself.
-        </p>
-      </div>
-      <div class="flex flex-wrap gap-3 shrink-0">
-        <WhatsAppButton />
-        <a
-          href="/contact"
-          class="inline-flex rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+  <div id="package-list">
+    <div data-package data-departs={octoberUmrah.departs}>
+      <Section>
+        <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-8">Umrah Packages</h2>
+        <OctoberUmrahPackage />
+        <div
+          data-animate
+          class="mt-6 rounded-3xl border border-white/10 bg-navy-light/50 p-6 sm:p-10 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10"
         >
-          Send an Enquiry
-        </a>
-      </div>
+          <div class="flex-1">
+            <h3 class="text-xl sm:text-2xl font-bold text-white mb-3">
+              Don't want to go in a group?
+            </h3>
+            <p class="text-white/70 leading-relaxed max-w-2xl">
+              Would you rather travel independently, or with just your family and friends? Not a
+              problem. We'll build your Umrah around you — your dates, your hotels, your pace — and
+              take care of the flights, visas and transfers, so all that's left for you is the journey
+              itself.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-3 shrink-0">
+            <WhatsAppButton />
+            <a
+              href="/contact"
+              class="inline-flex rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+            >
+              Send an Enquiry
+            </a>
+          </div>
+        </div>
+      </Section>
     </div>
-  </Section>
 
-  <Section class="bg-navy-light/30">
-    <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-6">Hajj 2027 Packages</h2>
-    <HajjDeadline class="mb-6" />
-    <Hajj2027Packages />
-  </Section>
+    <div data-package data-departs={hajj2027.departs}>
+      <Section class="bg-navy-light/30">
+        <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-6">Hajj 2027 Packages</h2>
+        <HajjDeadline class="mb-6" />
+        <Hajj2027Packages />
+      </Section>
+    </div>
+  </div>
+
+  <script>
+    // Pages are prerendered, so order upcoming packages by departure and drop
+    // any whose departure has passed, client-side.
+    const list = document.getElementById("package-list");
+    if (list) {
+      const now = Date.now();
+      const items = Array.from(list.querySelectorAll<HTMLElement>("[data-package]")).sort(
+        (a, b) => Date.parse(a.dataset.departs ?? "") - Date.parse(b.dataset.departs ?? "")
+      );
+      for (const el of items) {
+        if (now >= Date.parse(el.dataset.departs ?? "")) el.remove();
+        else list.appendChild(el);
+      }
+    }
+  </script>
 
   <Section>
     <div data-animate class="rounded-3xl bg-navy-light border border-white/10 px-6 sm:px-12 py-10 sm:py-14 text-center">
