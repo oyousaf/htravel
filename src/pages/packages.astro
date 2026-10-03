@@ -70,6 +70,31 @@ import { octoberUmrah, hajj2027 } from "../data/hajjUmrah";
     </div>
   </div>
 
+  <div id="packages-empty" hidden>
+    <Section>
+      <div
+        data-animate
+        class="rounded-3xl border border-white/10 bg-navy-light/50 px-6 sm:px-12 py-12 sm:py-16 text-center"
+      >
+        <p class="text-teal font-semibold uppercase text-sm tracking-wide mb-3">Coming Soon</p>
+        <h2 class="text-2xl sm:text-3xl font-bold text-white mb-4">New packages on the way</h2>
+        <p class="text-white/70 max-w-xl mx-auto mb-8 leading-relaxed">
+          Our next Hajj and Umrah dates are being finalised. Message us and we'll let you know the
+          moment they're announced. We can also build a bespoke Umrah around your own dates.
+        </p>
+        <div class="flex flex-wrap justify-center gap-3">
+          <WhatsAppButton />
+          <a
+            href="/contact"
+            class="inline-flex rounded-full bg-white/10 px-6 py-3 text-sm font-semibold text-white hover:bg-white/20 transition-colors"
+          >
+            Send an Enquiry
+          </a>
+        </div>
+      </div>
+    </Section>
+  </div>
+
   <script>
     // Pages are prerendered, so order upcoming packages by departure and drop
     // any whose departure has passed, client-side.
@@ -82,6 +107,10 @@ import { octoberUmrah, hajj2027 } from "../data/hajjUmrah";
       for (const el of items) {
         if (now >= Date.parse(el.dataset.departs ?? "")) el.remove();
         else list.appendChild(el);
+      }
+      if (!list.querySelector("[data-package]")) {
+        const empty = document.getElementById("packages-empty");
+        if (empty) empty.hidden = false;
       }
     }
   </script>
