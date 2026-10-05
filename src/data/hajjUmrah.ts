@@ -49,7 +49,7 @@ export const octoberUmrah = {
 export const hajj2027 = {
   leader: "Al-Hajj Tahir Nawaz",
   departs: "2027-05-04T00:00:00+01:00",
-  maktab: "Maktab B, Zone 2",
+  maktab: "Maktab A, Zone 1",
   eligibility: "Travelling from the UK on a Pakistani passport",
   includes: ["Visas", "Flights", "Hotels", "Ziyarat", "Private transport", "Qurbani"],
   contacts: [
@@ -67,9 +67,9 @@ export const hajj2027 = {
         { city: "Madinah", name: "Mysk Touch" },
       ],
       rooms: [
-        { label: "Quad", price: "£7,300" },
-        { label: "Triple", price: "£7,700" },
-        { label: "Double", price: "£8,500" },
+        { label: "Quad", price: "£7,950" },
+        { label: "Triple", price: "£8,350" },
+        { label: "Double", price: "£9,150" },
       ],
     },
     {
@@ -81,9 +81,9 @@ export const hajj2027 = {
         { city: "Madinah", name: "Mysk Touch Al Balad Hotel", detail: "3★, full board" },
       ],
       rooms: [
-        { label: "Quad", price: "£7,000" },
-        { label: "Triple", price: "£7,400" },
-        { label: "Double", price: "£8,100" },
+        { label: "Quad", price: "£7,650" },
+        { label: "Triple", price: "£8,050" },
+        { label: "Double", price: "£8,750" },
       ],
     },
   ],
