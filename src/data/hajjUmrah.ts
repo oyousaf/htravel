@@ -64,6 +64,7 @@ export const hajj2027 = {
       return: "23rd – 25th May 2027",
       hotels: [
         { city: "Makkah", name: "Hilton Convention" },
+        { city: "Makkah", name: "Azizia" },
         { city: "Madinah", name: "Mysk Touch" },
       ],
       rooms: [
