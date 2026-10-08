@@ -78,21 +78,6 @@ import { site } from "../data/site";
     <ShopOffers />
   </Section>
 
-  <!-- Live flights -->
-  <Section class="pt-0">
-    <div class="grid lg:grid-cols-2 gap-6 items-center">
-      <div data-animate>
-        <h3 class="text-lg font-bold text-white mb-1">Flying soon?</h3>
-        <p class="text-white/60 text-sm">
-          A look at upcoming departures from Manchester Airport — just for fun, powered by public flight-schedule data.
-        </p>
-      </div>
-      <div data-animate>
-        <LiveFlights client:load />
-      </div>
-    </div>
-  </Section>
-
   <!-- Hajj & Umrah highlight -->
   <Section class="bg-navy-light/30">
     <div class="grid lg:grid-cols-2 gap-10 items-center">
@@ -153,6 +138,21 @@ import { site } from "../data/site";
           style="clip-path: polygon(53% 0, 55% 0, 47% 100%, 45% 100%);"
         ></div>
         <div class="absolute inset-0 bg-linear-to-t from-navy-dark/50 via-transparent to-transparent"></div>
+      </div>
+    </div>
+  </Section>
+
+    <!-- Live flights -->
+  <Section class="pt-0">
+    <div class="grid lg:grid-cols-2 gap-6 items-center">
+      <div data-animate>
+        <h3 class="text-lg font-bold text-white mb-1">Flying soon?</h3>
+        <p class="text-white/60 text-sm">
+          A look at upcoming departures from Manchester Airport — just for fun, powered by public flight-schedule data.
+        </p>
+      </div>
+      <div data-animate>
+        <LiveFlights client:load />
       </div>
     </div>
   </Section>
