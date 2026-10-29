@@ -3,9 +3,16 @@ import {
   defaultHajj,
   defaultUmrah,
   maktabOptions,
+  type DateWindow,
   type HajjSeason,
   type UmrahPackage,
 } from "../data/hajjUmrah";
+
+// The Hajj season as displayed, with its title and drop-off date worked out from the packages.
+export type HajjView = HajjSeason & {
+  title: string; // "Hajj 2027"
+  departDate: string; // earliest departure; the section leaves /packages on this day
+};
 
 export interface UmrahEdits {
   name: string;
@@ -18,7 +25,8 @@ export interface UmrahEdits {
 
 export interface HajjEdits {
   maktab: string;
-  packages: { hotels: string[]; rooms: number[] }[];
+  // Dates are optional because saves made before they were editable don't have them.
+  packages: { departure?: DateWindow; return?: DateWindow; hotels: string[]; rooms: number[] }[];
 }
 
 const UMRAH_KEY = "packages:umrah";
@@ -69,6 +77,25 @@ export function dateRange(from: string, to: string): string {
   return `${a.getUTCDate()} – ${fmt(to, { day: "numeric", month: "long", year: "numeric" })}`;
 }
 
+function ordinal(day: number): string {
+  const suffix = day % 100 >= 11 && day % 100 <= 13 ? "th" : ["th", "st", "nd", "rd"][day % 10] ?? "th";
+  return `${day}${suffix}`;
+}
+
+// "4th May 2027", "4th or 5th May 2027", "7th – 10th May 2027", "30th May – 2nd June 2027"
+export function dateWindow({ from, to }: DateWindow): string {
+  const [a, b] = [parseYmd(from), parseYmd(to)];
+  const day = (d: Date) => ordinal(d.getUTCDate());
+  const month = (ymd: string) => fmt(ymd, { month: "long" });
+  const year = (d: Date) => d.getUTCFullYear();
+
+  if (from === to) return `${day(a)} ${month(from)} ${year(a)}`;
+  if (year(a) !== year(b)) return `${day(a)} ${month(from)} ${year(a)} – ${day(b)} ${month(to)} ${year(b)}`;
+  if (a.getUTCMonth() !== b.getUTCMonth()) return `${day(a)} ${month(from)} – ${day(b)} ${month(to)} ${year(b)}`;
+  const joiner = nightsBetween(from, to) === 1 ? " or " : " – ";
+  return `${day(a)}${joiner}${day(b)} ${month(to)} ${year(b)}`;
+}
+
 export const gbp = (amount: number) =>
   new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP", maximumFractionDigits: 0 }).format(amount);
 
@@ -103,11 +130,16 @@ export async function getUmrah(): Promise<UmrahPackage> {
   };
 }
 
-export async function getHajj(): Promise<HajjSeason> {
-  const edits = await read<HajjEdits>(HAJJ_KEY, memory.hajj).catch(() => null);
-  if (!edits) return defaultHajj;
+function withSeasonDates(season: HajjSeason): HajjView {
+  const departDate = season.packages.map((p) => p.departure.from).sort()[0];
+  return { ...season, departDate, title: `Hajj ${departDate.slice(0, 4)}` };
+}
 
-  return {
+export async function getHajj(): Promise<HajjView> {
+  const edits = await read<HajjEdits>(HAJJ_KEY, memory.hajj).catch(() => null);
+  if (!edits) return withSeasonDates(defaultHajj);
+
+  return withSeasonDates({
     ...defaultHajj,
     maktab: edits.maktab,
     packages: defaultHajj.packages.map((p, i) => {
@@ -115,12 +147,14 @@ export async function getHajj(): Promise<HajjSeason> {
       if (!e) return p;
       return {
         ...p,
+        departure: e.departure ?? p.departure,
+        return: e.return ?? p.return,
         hotels:
           e.hotels.length === p.hotels.length ? p.hotels.map((h, j) => ({ ...h, name: e.hotels[j] })) : p.hotels,
         rooms: e.rooms.length === p.rooms.length ? p.rooms.map((r, j) => ({ ...r, price: e.rooms[j] })) : p.rooms,
       };
     }),
-  };
+  });
 }
 
 // --- Validating and saving ----------------------------------------------------
@@ -145,6 +179,13 @@ const price = (value: unknown, label: string) => wholeNumber(value, label, 1, 10
 function list(value: unknown, length: number): unknown[] {
   if (!Array.isArray(value) || value.length !== length) throw new Error("The form is out of date. Reload the page and try again.");
   return value;
+}
+
+function windowField(value: unknown, label: string): DateWindow {
+  const w = (value ?? {}) as Record<string, unknown>;
+  if (!isValidYmd(w.from) || !isValidYmd(w.to)) throw new Error(`Pick both ${label} dates.`);
+  if (w.to < w.from) throw new Error(`The latest ${label} date can't be before the earliest.`);
+  return { from: w.from, to: w.to };
 }
 
 function validate<T>(build: () => T): Result<T> {
@@ -194,7 +235,14 @@ export function validateHajj(body: Record<string, unknown>): Result<HajjEdits> {
     const packages = list(body.packages, defaultHajj.packages.length).map((raw, i) => {
       const p = (raw ?? {}) as Record<string, unknown>;
       const defaults = defaultHajj.packages[i];
+      const departure = windowField(p.departure, `${defaults.name} departure`);
+      const ret = windowField(p.return, `${defaults.name} return`);
+      if (ret.from <= departure.to) {
+        throw new Error(`The ${defaults.name} return dates must be after its departure dates.`);
+      }
       return {
+        departure,
+        return: ret,
         hotels: list(p.hotels, defaults.hotels.length).map((name, j) =>
           text(name, `${defaults.name} ${defaults.hotels[j].city} hotel`)
         ),

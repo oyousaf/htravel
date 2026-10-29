@@ -36,17 +36,23 @@ export interface UmrahPackage {
   includes: string[];
 }
 
+// Hajj flights are quoted as a window, e.g. "4th or 5th May" or "7th – 10th May".
+export interface DateWindow {
+  from: string; // YYYY-MM-DD, earliest
+  to: string; // YYYY-MM-DD, latest (same as from for a single date)
+}
+
 export interface HajjPackage {
   name: string;
-  departure: string;
-  return: string;
+  departure: DateWindow; // editable
+  return: DateWindow; // editable
   hotels: { city: string; name: string; detail?: string }[]; // name editable
   rooms: { label: string; price: number }[]; // price editable
 }
 
+// The season's title ("Hajj 2027") and the day it drops off the packages page
+// are worked out from the earliest departure; see getHajj().
 export interface HajjSeason {
-  title: string;
-  departDate: string; // YYYY-MM-DD, earliest departure; the section hides from this day
   leader: string;
   maktab: string; // editable, one of maktabOptions
   eligibility: string;
@@ -93,8 +99,6 @@ export const defaultUmrah: UmrahPackage = {
 };
 
 export const defaultHajj: HajjSeason = {
-  title: "Hajj 2027",
-  departDate: "2027-05-04",
   leader: "Al-Hajj Tahir Nawaz",
   maktab: "Maktab A, Zone 1",
   eligibility: "Travelling from the UK on a Pakistani passport",
@@ -107,8 +111,8 @@ export const defaultHajj: HajjSeason = {
   packages: [
     {
       name: "17-Day Hajj",
-      departure: "4th or 5th May 2027",
-      return: "23rd – 25th May 2027",
+      departure: { from: "2027-05-04", to: "2027-05-05" },
+      return: { from: "2027-05-23", to: "2027-05-25" },
       hotels: [
         { city: "Makkah", name: "Hilton Convention" },
         { city: "Makkah", name: "Azizia" },
@@ -122,8 +126,8 @@ export const defaultHajj: HajjSeason = {
     },
     {
       name: "14-Day Hajj",
-      departure: "7th – 10th May 2027",
-      return: "23rd – 25th May 2027",
+      departure: { from: "2027-05-07", to: "2027-05-10" },
+      return: { from: "2027-05-23", to: "2027-05-25" },
       hotels: [
         { city: "Makkah", name: "Azizia", detail: "3★, full board" },
         { city: "Madinah", name: "Mysk Touch Al Balad Hotel", detail: "3★, full board" },

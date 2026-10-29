@@ -3,7 +3,7 @@ import AdminLayout from "../../layouts/AdminLayout.astro";
 import BrandMark from "../../components/BrandMark.astro";
 import { isAuthed } from "../../lib/adminAuth";
 import { getManualRates } from "../../lib/manualRates";
-import { getHajj, getUmrah, isUpcoming, nightsBetween, todayInLondon } from "../../lib/packages";
+import { addDays, dateWindow, getHajj, getUmrah, isUpcoming, nightsBetween, todayInLondon } from "../../lib/packages";
 import { maktabOptions } from "../../data/hajjUmrah";
 
 export const prerender = false;
@@ -167,7 +167,7 @@ const pill = "rounded-full px-3 py-1 text-xs font-medium";
             </div>
             <div>
               <label for="returnDate" class={label}>Return date</label>
-              <input id="returnDate" name="returnDate" type="date" required value={umrah.returnDate} class={input} />
+              <input id="returnDate" name="returnDate" type="date" required value={umrah.returnDate} min={addDays(umrah.departDate, 1)} class={input} />
             </div>
             <div class="flex items-end">
               <p class="w-full rounded-xl bg-teal/5 ring-1 ring-teal/15 px-4 py-2.5 text-sm">
@@ -282,6 +282,31 @@ const pill = "rounded-full px-3 py-1 text-xs font-medium";
                 <fieldset data-hajj-package class="rounded-2xl bg-navy-dark/40 ring-1 ring-amber-300/20 p-5 space-y-4">
                   <legend class="sr-only">{p.name}</legend>
                   <p class="text-amber-200 text-sm font-semibold">{p.name}</p>
+                  {(["departure", "return"] as const).map((leg) => (
+                    <div data-window={leg}>
+                      <div class="grid grid-cols-2 gap-3">
+                        <div>
+                          <label for={`hajj-${i}-${leg}-from`} class={label}>Earliest {leg}</label>
+                          <input
+                            id={`hajj-${i}-${leg}-from`}
+                            data-from
+                            type="date"
+                            required
+                            value={p[leg].from}
+                            min={leg === "return" ? addDays(p.departure.to, 1) : undefined}
+                            class={input}
+                          />
+                        </div>
+                        <div>
+                          <label for={`hajj-${i}-${leg}-to`} class={label}>Latest {leg}</label>
+                          <input id={`hajj-${i}-${leg}-to`} data-to type="date" required value={p[leg].to} min={p[leg].from} class={input} />
+                        </div>
+                      </div>
+                      <p class="mt-1.5 text-xs text-white/45">
+                        Shows as: <span data-preview class="text-white/75">{dateWindow(p[leg])}</span>
+                      </p>
+                    </div>
+                  ))}
                   <div class="space-y-3">
                     {p.hotels.map((h, j) => (
                       <div>
@@ -550,6 +575,14 @@ const pill = "rounded-full px-3 py-1 text-xs font-medium";
         type: "hajj",
         maktab: value(form, '[name="maktab"]'),
         packages: Array.from(form.querySelectorAll("[data-hajj-package]")).map((p) => ({
+          departure: {
+            from: value(p, '[data-window="departure"] [data-from]'),
+            to: value(p, '[data-window="departure"] [data-to]'),
+          },
+          return: {
+            from: value(p, '[data-window="return"] [data-from]'),
+            to: value(p, '[data-window="return"] [data-to]'),
+          },
           hotels: Array.from(p.querySelectorAll<HTMLInputElement>("[data-hotel-name]")).map((i) => i.value),
           rooms: Array.from(p.querySelectorAll<HTMLInputElement>("[data-room]")).map((i) => i.value),
         })),
@@ -648,5 +681,77 @@ const pill = "rounded-full px-3 py-1 text-xs font-medium";
 
     umrahForm.addEventListener("input", update);
     update();
+
+    // Moving the departure carries the return with it, keeping the trip the same length.
+    const departInput = umrahForm.querySelector('[name="departDate"]') as HTMLInputElement;
+    const returnInput = umrahForm.querySelector('[name="returnDate"]') as HTMLInputElement;
+    let previousDepart = departInput.value;
+
+    departInput.addEventListener("change", () => {
+      if (!departInput.value) return;
+      if (previousDepart && returnInput.value) {
+        const length = daysBetween(previousDepart, returnInput.value);
+        if (length > 0) returnInput.value = shiftDate(departInput.value, length);
+      }
+      previousDepart = departInput.value;
+      returnInput.min = shiftDate(departInput.value, 1);
+      update();
+    });
   }
+
+  // --- Hajj date windows -------------------------------------------------------
+  function shiftDate(ymd: string, days: number): string {
+    return new Date(Date.parse(`${ymd}T00:00:00Z`) + days * DAY_MS).toISOString().slice(0, 10);
+  }
+
+  function daysBetween(from: string, to: string): number {
+    return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
+  }
+
+  // Mirrors dateWindow() in src/lib/packages.ts so the preview matches the website.
+  function formatWindow(from: string, to: string): string {
+    if (!from || !to) return "–";
+    const ordinal = (n: number) => `${n}${n % 100 >= 11 && n % 100 <= 13 ? "th" : (["th", "st", "nd", "rd"][n % 10] ?? "th")}`;
+    const parts = (ymd: string) => {
+      const d = new Date(`${ymd}T00:00:00Z`);
+      return {
+        day: ordinal(d.getUTCDate()),
+        month: d.toLocaleDateString("en-GB", { month: "long", timeZone: "UTC" }),
+        monthIndex: d.getUTCMonth(),
+        year: d.getUTCFullYear(),
+      };
+    };
+    const [a, b] = [parts(from), parts(to)];
+    if (from === to) return `${a.day} ${a.month} ${a.year}`;
+    if (to < from) return "Latest date is before the earliest";
+    if (a.year !== b.year) return `${a.day} ${a.month} ${a.year} – ${b.day} ${b.month} ${b.year}`;
+    if (a.monthIndex !== b.monthIndex) return `${a.day} ${a.month} – ${b.day} ${b.month} ${b.year}`;
+    return `${a.day}${daysBetween(from, to) === 1 ? " or " : " – "}${b.day} ${b.month} ${b.year}`;
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-hajj-package]").forEach((pkg) => {
+    const field = (leg: string, end: "from" | "to") =>
+      pkg.querySelector(`[data-window="${leg}"] [data-${end}]`) as HTMLInputElement;
+    const departFrom = field("departure", "from");
+    const departTo = field("departure", "to");
+    const returnFrom = field("return", "from");
+    const returnTo = field("return", "to");
+
+    const refresh = () => {
+      // Keep the pickers from offering impossible dates.
+      departTo.min = departFrom.value;
+      if (departTo.value && departTo.value < departFrom.value) departTo.value = departFrom.value;
+      if (departTo.value) returnFrom.min = shiftDate(departTo.value, 1);
+      returnTo.min = returnFrom.value;
+      if (returnTo.value && returnTo.value < returnFrom.value) returnTo.value = returnFrom.value;
+
+      for (const leg of ["departure", "return"]) {
+        const preview = pkg.querySelector(`[data-window="${leg}"] [data-preview]`) as HTMLElement;
+        preview.textContent = formatWindow(field(leg, "from").value, field(leg, "to").value);
+      }
+    };
+
+    pkg.addEventListener("change", refresh);
+    refresh();
+  });
 </script>
