@@ -1,0 +1,553 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import BrandMark from "../../components/BrandMark.astro";
+import { isAuthed } from "../../lib/adminAuth";
+import { getManualRates } from "../../lib/manualRates";
+import { getHajj, getUmrah, isUpcoming, nightsBetween, todayInLondon } from "../../lib/packages";
+import { maktabOptions } from "../../data/hajjUmrah";
+
+export const prerender = false;
+
+if (!isAuthed(Astro.cookies)) return Astro.redirect("/admin");
+
+const [rates, umrah, hajj] = await Promise.all([getManualRates().catch(() => null), getUmrah(), getHajj()]);
+const today = todayInLondon();
+const nights = nightsBetween(umrah.departDate, umrah.returnDate);
+
+// "Maktab A, Zone 1" → grouped under "Maktab A" in the dropdown.
+const maktabGroups = new Map<string, string[]>();
+for (const option of maktabOptions) {
+  const group = option.split(",")[0];
+  maktabGroups.set(group, [...(maktabGroups.get(group) ?? []), option]);
+}
+
+const ukDate = (ymd: string) => ymd.split("-").reverse().join("/");
+
+const sections = [
+  { id: "rates", label: "Exchange rates" },
+  { id: "umrah", label: "Umrah" },
+  { id: "hajj", label: "Hajj" },
+];
+
+const input =
+  "w-full rounded-xl bg-navy-dark/80 border border-white/10 px-4 py-2.5 text-white placeholder:text-white/30 hover:border-white/20 focus:border-teal focus:outline-none focus:ring-4 focus:ring-teal/15 transition";
+const label = "block text-xs font-medium text-white/55 mb-1.5";
+const card =
+  "panel scroll-mt-36 rounded-[1.75rem] border border-white/10 bg-navy-light/30 backdrop-blur-xl p-6 sm:p-8 shadow-[0_1px_0_0_rgba(255,255,255,0.06)_inset]";
+const iconBox = "grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-teal/10 text-teal ring-1 ring-teal/20";
+const saveButton =
+  "group inline-flex items-center gap-2 rounded-full bg-teal px-6 py-2.5 text-sm font-semibold text-navy-dark hover:bg-teal-dark active:scale-[0.98] transition disabled:opacity-60";
+const pill = "rounded-full px-3 py-1 text-xs font-medium";
+---
+
+<AdminLayout title="Staff Dashboard">
+  <div class="glow glow-a" aria-hidden="true"></div>
+  <div class="glow glow-b" aria-hidden="true"></div>
+
+  <header class="sticky top-0 z-30 border-b border-white/5 bg-navy-dark/70 backdrop-blur-xl">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <a href="/" target="_blank" rel="noopener" aria-label="Open the website"><BrandMark /></a>
+        <span class={`hidden sm:inline ${pill} border border-teal/30 text-teal`}>Staff</span>
+      </div>
+      <div class="flex items-center gap-1 sm:gap-2 text-sm">
+        <a href="/packages" target="_blank" rel="noopener" class="hidden sm:inline rounded-full px-3 py-2 text-white/60 hover:text-teal transition-colors">
+          View packages ↗
+        </a>
+        <form method="POST" action="/api/admin/logout">
+          <button class="rounded-full bg-white/5 px-4 py-2 font-medium text-white ring-1 ring-white/10 hover:bg-white/10 transition">
+            Log out
+          </button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <div class="relative mx-auto max-w-4xl px-4 sm:px-6 pb-24">
+    <div class="panel pt-10 pb-6">
+      <p class="text-teal text-sm font-medium" data-greeting>Welcome back</p>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight mt-1">Staff dashboard</h1>
+      <p class="text-white/50 mt-2">Changes go live on the website as soon as you save.</p>
+    </div>
+
+    <nav
+      aria-label="Sections"
+      class="sticky top-18 z-20 mb-8 flex w-fit max-w-full gap-1 overflow-x-auto rounded-full border border-white/10 bg-navy-dark/70 p-1 backdrop-blur-xl"
+    >
+      {
+        sections.map((s) => (
+          <a
+            href={`#${s.id}`}
+            data-tab={s.id}
+            class="relative whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium text-white/60 transition hover:text-white aria-current:bg-teal aria-current:text-navy-dark"
+          >
+            {s.label}
+            <span data-dirty-dot hidden class="ml-1.5 inline-block h-1.5 w-1.5 rounded-full bg-amber-300 align-middle" />
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="space-y-8">
+      <!-- Exchange rates -->
+      <section id="rates" class={card}>
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-7">
+          <div class="flex items-start gap-4">
+            <span class={iconBox}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M7 7h11l-3-3M17 17H6l3 3" /></svg>
+            </span>
+            <div>
+              <h2 class="text-xl font-bold">Today's exchange rates</h2>
+              <p class="text-white/50 text-sm mt-0.5">1 GBP to PKR, shown on the homepage.</p>
+            </div>
+          </div>
+          <span class={`${pill} bg-white/5 text-white/60 ring-1 ring-white/10`}>
+            {rates ? `Live: ${rates.cashPickup} / ${rates.bankTransfer} · ${ukDate(rates.date)}` : "No rates saved yet"}
+          </span>
+        </div>
+        <form data-admin-form="rates" data-section="rates" class="grid sm:grid-cols-3 gap-4 items-end">
+          <div>
+            <label for="cashPickup" class={label}>Cash pick-up</label>
+            <input id="cashPickup" name="cashPickup" type="number" inputmode="decimal" step="0.01" min="0" required value={rates?.cashPickup} class={`${input} text-lg font-semibold tabular-nums`} />
+          </div>
+          <div>
+            <label for="bankTransfer" class={label}>Bank transfer</label>
+            <input id="bankTransfer" name="bankTransfer" type="number" inputmode="decimal" step="0.01" min="0" required value={rates?.bankTransfer} class={`${input} text-lg font-semibold tabular-nums`} />
+          </div>
+          <div>
+            <label for="rateDate" class={label}>Rate date</label>
+            <input id="rateDate" name="date" type="date" required value={today} class={`${input} text-lg`} />
+          </div>
+          <div class="sm:col-span-3 pt-2">
+            <button type="submit" class={saveButton}>Save rates</button>
+          </div>
+        </form>
+      </section>
+
+      <!-- Umrah -->
+      <section id="umrah" class={card}>
+        <div class="flex flex-wrap items-start justify-between gap-4 mb-7">
+          <div class="flex items-start gap-4">
+            <span class={iconBox}>
+              <svg viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 rotate-45"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2.5 1.5V22l4-1 4 1v-1.5L13 19v-5.5z" /></svg>
+            </span>
+            <div>
+              <h2 class="text-xl font-bold">Umrah package</h2>
+              <p class="text-white/50 text-sm mt-0.5">Flight dates follow the package dates automatically.</p>
+            </div>
+          </div>
+          {
+            isUpcoming(umrah.departDate) ? (
+              <span class={`${pill} bg-teal/10 text-teal ring-1 ring-teal/20`}>● Listed on the packages page</span>
+            ) : (
+              <span class={`${pill} bg-amber-300/10 text-amber-200 ring-1 ring-amber-300/20`}>
+                Hidden: departure has passed. Set new dates to list it again.
+              </span>
+            )
+          }
+        </div>
+
+        <form data-admin-form="umrah" data-section="umrah" class="space-y-8">
+          <div class="grid sm:grid-cols-3 gap-4">
+            <div class="sm:col-span-3">
+              <label for="umrahName" class={label}>Package name</label>
+              <input id="umrahName" name="name" type="text" maxlength="80" required value={umrah.name} class={input} />
+            </div>
+            <div>
+              <label for="departDate" class={label}>Departure date</label>
+              <input id="departDate" name="departDate" type="date" required value={umrah.departDate} class={input} />
+            </div>
+            <div>
+              <label for="returnDate" class={label}>Return date</label>
+              <input id="returnDate" name="returnDate" type="date" required value={umrah.returnDate} class={input} />
+            </div>
+            <div class="flex items-end">
+              <p class="w-full rounded-xl bg-teal/5 ring-1 ring-teal/15 px-4 py-2.5 text-sm">
+                <span data-total-nights class="text-lg font-bold text-teal tabular-nums">{nights}</span>
+                <span class="text-white/60"> nights in total</span>
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex flex-wrap items-baseline justify-between gap-2 mb-3">
+              <h3 class="font-semibold">Hotels</h3>
+              <p data-nights-check class="text-xs text-white/55" aria-live="polite"></p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-4">
+              {
+                umrah.hotels.map((h, i) => (
+                  <fieldset data-hotel class="rounded-2xl bg-navy-dark/40 ring-1 ring-white/10 p-4 space-y-3">
+                    <legend class="sr-only">{h.city} hotel</legend>
+                    <p class="text-teal text-xs font-semibold uppercase tracking-wide">{h.city}</p>
+                    <div>
+                      <label for={`hotel-name-${i}`} class={label}>Hotel name</label>
+                      <input id={`hotel-name-${i}`} data-field="name" type="text" maxlength="80" required value={h.name} class={input} />
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                      <div>
+                        <label for={`hotel-stars-${i}`} class={label}>Stars</label>
+                        <select id={`hotel-stars-${i}`} data-field="stars" class={input}>
+                          {[5, 4, 3, 2, 1].map((s) => (
+                            <option value={s} selected={s === h.stars}>{"★".repeat(s)}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label for={`hotel-nights-${i}`} class={label}>Nights</label>
+                        <input id={`hotel-nights-${i}`} data-field="nights" type="number" min="1" max="60" step="1" required value={h.nights} class={input} />
+                      </div>
+                    </div>
+                  </fieldset>
+                ))
+              }
+            </div>
+          </div>
+
+          <div>
+            <h3 class="font-semibold mb-3">Prices per person</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {
+                umrah.rooms.map((r, i) => (
+                  <div>
+                    <label for={`umrah-room-${i}`} class={label}>{r.label}</label>
+                    <div class="relative">
+                      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">£</span>
+                      <input id={`umrah-room-${i}`} data-room type="number" min="1" step="1" required value={r.price} class={`${input} pl-8 tabular-nums`} />
+                    </div>
+                  </div>
+                ))
+              }
+              <div>
+                <label for="deposit" class={label}>Deposit</label>
+                <div class="relative">
+                  <span class="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">£</span>
+                  <input id="deposit" name="deposit" type="number" min="1" step="1" required value={umrah.deposit} class={`${input} pl-8 tabular-nums`} />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class={saveButton}>Save Umrah package</button>
+        </form>
+      </section>
+
+      <!-- Hajj -->
+      <section id="hajj" class={card}>
+        <div class="flex items-start gap-4 mb-7">
+          <span class="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-300/10 text-amber-200 ring-1 ring-amber-300/20">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><path d="M4 21V9l8-5 8 5v12M9 21v-6h6v6" /></svg>
+          </span>
+          <div>
+            <h2 class="text-xl font-bold">{hajj.title}</h2>
+            <p class="text-white/50 text-sm mt-0.5">Maktab zone, hotels and prices for both Hajj packages.</p>
+          </div>
+        </div>
+
+        <form data-admin-form="hajj" data-section="hajj" class="space-y-8">
+          <div class="max-w-xs">
+            <label for="maktab" class={label}>Maktab zone</label>
+            <select id="maktab" name="maktab" class={input}>
+              {
+                [...maktabGroups].map(([group, options]) => (
+                  <optgroup label={group}>
+                    {options.map((o) => (
+                      <option value={o} selected={o === hajj.maktab}>{o}</option>
+                    ))}
+                  </optgroup>
+                ))
+              }
+            </select>
+          </div>
+
+          <div class="grid lg:grid-cols-2 gap-4">
+            {
+              hajj.packages.map((p, i) => (
+                <fieldset data-hajj-package class="rounded-2xl bg-navy-dark/40 ring-1 ring-amber-300/20 p-5 space-y-4">
+                  <legend class="sr-only">{p.name}</legend>
+                  <p class="text-amber-200 text-sm font-semibold">{p.name}</p>
+                  <div class="space-y-3">
+                    {p.hotels.map((h, j) => (
+                      <div>
+                        <label for={`hajj-${i}-hotel-${j}`} class={label}>{h.city} hotel</label>
+                        <input id={`hajj-${i}-hotel-${j}`} data-hotel-name type="text" maxlength="80" required value={h.name} class={input} />
+                      </div>
+                    ))}
+                  </div>
+                  <div class="grid grid-cols-3 gap-3">
+                    {p.rooms.map((r, j) => (
+                      <div>
+                        <label for={`hajj-${i}-room-${j}`} class={label}>{r.label}</label>
+                        <div class="relative">
+                          <span class="absolute left-3 top-1/2 -translate-y-1/2 text-white/40">£</span>
+                          <input id={`hajj-${i}-room-${j}`} data-room type="number" min="1" step="1" required value={r.price} class={`${input} pl-7 tabular-nums`} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </fieldset>
+              ))
+            }
+          </div>
+
+          <button type="submit" class={saveButton}>Save Hajj packages</button>
+        </form>
+      </section>
+    </div>
+  </div>
+
+  <div
+    id="toast"
+    role="status"
+    aria-live="polite"
+    class="toast pointer-events-none fixed bottom-6 left-1/2 z-40 flex max-w-[calc(100%-2rem)] items-center gap-3 rounded-2xl border border-white/10 bg-navy-light/90 px-5 py-3 text-sm shadow-2xl backdrop-blur-xl"
+  >
+    <span data-toast-icon class="grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold"></span>
+    <span data-toast-text></span>
+  </div>
+</AdminLayout>
+
+<style>
+  .glow {
+    position: fixed;
+    width: 36rem;
+    height: 36rem;
+    border-radius: 9999px;
+    filter: blur(110px);
+    opacity: 0.18;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .glow-a {
+    background: var(--color-teal);
+    top: -16rem;
+    left: -12rem;
+    animation: drift 20s ease-in-out infinite alternate;
+  }
+  .glow-b {
+    background: #2563eb;
+    bottom: -18rem;
+    right: -12rem;
+    animation: drift 24s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes drift {
+    to {
+      transform: translate(8rem, 6rem) scale(1.15);
+    }
+  }
+
+  .panel {
+    animation: panel-in 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  #rates {
+    animation-delay: 80ms;
+  }
+  #umrah {
+    animation-delay: 160ms;
+  }
+  #hajj {
+    animation-delay: 240ms;
+  }
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+  }
+
+  .toast {
+    opacity: 0;
+    transform: translate(-50%, 16px) scale(0.96);
+    transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .toast.is-visible {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glow,
+    .panel {
+      animation: none;
+    }
+    .toast {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const value = (root: ParentNode, selector: string) =>
+    (root.querySelector(selector) as HTMLInputElement | HTMLSelectElement).value;
+
+  // --- Greeting -------------------------------------------------------------
+  const hour = new Date().getHours();
+  const greeting = document.querySelector("[data-greeting]");
+  if (greeting) greeting.textContent = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+
+  // --- Toast ------------------------------------------------------------------
+  const toast = document.getElementById("toast") as HTMLElement;
+  const toastIcon = toast.querySelector("[data-toast-icon]") as HTMLElement;
+  const toastText = toast.querySelector("[data-toast-text]") as HTMLElement;
+  let toastTimer: number | undefined;
+
+  function notify(message: string, ok: boolean) {
+    toastText.textContent = message;
+    toastIcon.textContent = ok ? "✓" : "!";
+    toastIcon.className = `grid h-6 w-6 shrink-0 place-items-center rounded-full text-xs font-bold ${
+      ok ? "bg-teal text-navy-dark" : "bg-red-400 text-navy-dark"
+    }`;
+    toast.classList.add("is-visible");
+    clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => toast.classList.remove("is-visible"), ok ? 3200 : 6000);
+  }
+
+  // --- Section tabs (scroll-spy) ----------------------------------------------
+  const tabs = new Map(
+    Array.from(document.querySelectorAll<HTMLAnchorElement>("[data-tab]")).map((t) => [t.dataset.tab!, t])
+  );
+  let activeSection = "rates";
+  const setActive = (id: string) => {
+    activeSection = id;
+    tabs.forEach((tab, key) => tab.setAttribute("aria-current", String(key === id)));
+  };
+  setActive(activeSection);
+  const spy = new IntersectionObserver(
+    (entries) => entries.forEach((e) => e.isIntersecting && setActive(e.target.id)),
+    { rootMargin: "-40% 0px -55% 0px" }
+  );
+  document.querySelectorAll("section[id]").forEach((s) => spy.observe(s));
+
+  // --- Forms ------------------------------------------------------------------
+  const collectors: Record<string, (form: HTMLFormElement) => { url: string; body: object }> = {
+    rates: (form) => ({
+      url: "/api/admin/rates",
+      body: {
+        cashPickup: value(form, '[name="cashPickup"]'),
+        bankTransfer: value(form, '[name="bankTransfer"]'),
+        date: value(form, '[name="date"]'),
+      },
+    }),
+    umrah: (form) => ({
+      url: "/api/admin/packages",
+      body: {
+        type: "umrah",
+        name: value(form, '[name="name"]'),
+        departDate: value(form, '[name="departDate"]'),
+        returnDate: value(form, '[name="returnDate"]'),
+        deposit: value(form, '[name="deposit"]'),
+        hotels: Array.from(form.querySelectorAll("[data-hotel]")).map((h) => ({
+          name: value(h, '[data-field="name"]'),
+          stars: value(h, '[data-field="stars"]'),
+          nights: value(h, '[data-field="nights"]'),
+        })),
+        rooms: Array.from(form.querySelectorAll<HTMLInputElement>("[data-room]")).map((i) => i.value),
+      },
+    }),
+    hajj: (form) => ({
+      url: "/api/admin/packages",
+      body: {
+        type: "hajj",
+        maktab: value(form, '[name="maktab"]'),
+        packages: Array.from(form.querySelectorAll("[data-hajj-package]")).map((p) => ({
+          hotels: Array.from(p.querySelectorAll<HTMLInputElement>("[data-hotel-name]")).map((i) => i.value),
+          rooms: Array.from(p.querySelectorAll<HTMLInputElement>("[data-room]")).map((i) => i.value),
+        })),
+      },
+    }),
+  };
+
+  const dirty = new Set<string>();
+  const setDirty = (section: string, isDirty: boolean) => {
+    if (isDirty) dirty.add(section);
+    else dirty.delete(section);
+    const dot = tabs.get(section)?.querySelector<HTMLElement>("[data-dirty-dot]");
+    if (dot) dot.hidden = !isDirty;
+  };
+
+  const forms = new Map<string, HTMLFormElement>();
+
+  document.querySelectorAll<HTMLFormElement>("[data-admin-form]").forEach((form) => {
+    const section = form.dataset.section!;
+    const button = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+    const collect = collectors[form.dataset.adminForm ?? ""];
+    forms.set(section, form);
+
+    form.addEventListener("input", () => setDirty(section, true));
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const original = button.textContent;
+      button.disabled = true;
+      button.textContent = "Saving…";
+
+      try {
+        const { url, body } = collect(form);
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (res.status === 401) {
+          location.assign("/admin");
+          return;
+        }
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.error ?? "Could not save.");
+        setDirty(section, false);
+        notify("Saved. It's live on the website now.", true);
+      } catch (err) {
+        notify(err instanceof Error ? err.message : "Could not save.", false);
+      } finally {
+        button.disabled = false;
+        button.textContent = original;
+      }
+    });
+  });
+
+  // Ctrl/Cmd + S saves the section you're looking at.
+  document.addEventListener("keydown", (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      forms.get(activeSection)?.requestSubmit();
+    }
+  });
+
+  window.addEventListener("beforeunload", (e) => {
+    if (dirty.size > 0) e.preventDefault();
+  });
+
+  // --- Live nights check for the Umrah form ----------------------------------
+  const umrahForm = forms.get("umrah");
+  if (umrahForm) {
+    const total = umrahForm.querySelector("[data-total-nights]") as HTMLElement;
+    const check = umrahForm.querySelector("[data-nights-check]") as HTMLElement;
+
+    const update = () => {
+      const nights = Math.round(
+        (Date.parse(value(umrahForm, '[name="returnDate"]')) - Date.parse(value(umrahForm, '[name="departDate"]'))) / DAY_MS
+      );
+      const hotelNights = Array.from(umrahForm.querySelectorAll<HTMLInputElement>('[data-field="nights"]')).reduce(
+        (sum, i) => sum + (Number(i.value) || 0),
+        0
+      );
+
+      total.textContent = Number.isFinite(nights) ? String(nights) : "–";
+      if (!Number.isFinite(nights) || nights < 1) {
+        check.textContent = "The return date must be after the departure date.";
+        check.className = "text-xs text-red-400";
+      } else if (hotelNights !== nights) {
+        check.textContent = `Hotel nights add up to ${hotelNights}; the dates cover ${nights}.`;
+        check.className = "text-xs text-amber-200";
+      } else {
+        check.textContent = "Hotel nights match the dates ✓";
+        check.className = "text-xs text-teal";
+      }
+    };
+
+    umrahForm.addEventListener("input", update);
+    update();
+  }
+</script>

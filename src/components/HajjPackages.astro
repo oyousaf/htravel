@@ -1,5 +1,12 @@
 ---
-import { hajj2027 as h } from "../data/hajjUmrah";
+import type { HajjSeason } from "../data/hajjUmrah";
+import { gbp } from "../lib/packages";
+
+interface Props {
+  season: HajjSeason;
+}
+
+const { season: h } = Astro.props;
 ---
 
 <div class="flex flex-col gap-6">
@@ -48,7 +55,7 @@ import { hajj2027 as h } from "../data/hajjUmrah";
             {p.rooms.map((r) => (
               <div class="px-2 py-4">
                 <p class="text-white/60 text-xs uppercase tracking-wide">{r.label}</p>
-                <p class="text-amber-300 text-xl sm:text-2xl font-bold mt-1">{r.price}</p>
+                <p class="text-amber-300 text-xl sm:text-2xl font-bold mt-1">{gbp(r.price)}</p>
                 <p class="text-white/55 text-xs">per person</p>
               </div>
             ))}

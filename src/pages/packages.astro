@@ -2,11 +2,24 @@
 import Layout from "../layouts/Layout.astro";
 import Section from "../components/Section.astro";
 import HajjDeadline from "../components/HajjDeadline.astro";
-import OctoberUmrahPackage from "../components/OctoberUmrahPackage.astro";
+import UmrahPackage from "../components/UmrahPackage.astro";
 import WhatsAppButton from "../components/WhatsAppButton.astro";
-import Hajj2027Packages from "../components/Hajj2027Packages.astro";
+import HajjPackages from "../components/HajjPackages.astro";
 import { site } from "../data/site";
-import { octoberUmrah, hajj2027 } from "../data/hajjUmrah";
+import { getHajj, getUmrah, isUpcoming } from "../lib/packages";
+
+// Rendered per request so admin edits and departure dates take effect immediately.
+export const prerender = false;
+
+const [umrah, hajj] = await Promise.all([getUmrah(), getHajj()]);
+
+// Soonest departure first; a package drops off on its departure day.
+const sections = [
+  { kind: "umrah" as const, departDate: umrah.departDate },
+  { kind: "hajj" as const, departDate: hajj.departDate },
+]
+  .filter((s) => isUpcoming(s.departDate))
+  .sort((a, b) => a.departDate.localeCompare(b.departDate));
 ---
 
 <Layout
@@ -28,11 +41,10 @@ import { octoberUmrah, hajj2027 } from "../data/hajjUmrah";
     </div>
   </section>
 
-  <div id="package-list">
-    <div data-package data-departs={octoberUmrah.departs}>
+  {sections.map((s) => s.kind === "umrah" ? (
       <Section>
         <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-8">Umrah Packages</h2>
-        <OctoberUmrahPackage />
+        <UmrahPackage pkg={umrah} />
         <div
           data-animate
           class="mt-6 rounded-3xl border border-white/10 bg-navy-light/50 p-6 sm:p-10 flex flex-col lg:flex-row lg:items-center gap-6 lg:gap-10"
@@ -59,18 +71,16 @@ import { octoberUmrah, hajj2027 } from "../data/hajjUmrah";
           </div>
         </div>
       </Section>
-    </div>
-
-    <div data-package data-departs={hajj2027.departs}>
+    ) : (
       <Section class="bg-navy-light/30">
-        <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-6">Hajj 2027 Packages</h2>
+        <h2 data-animate class="text-2xl sm:text-3xl font-bold text-white mb-6">{hajj.title} Packages</h2>
         <HajjDeadline class="mb-6" />
-        <Hajj2027Packages />
+        <HajjPackages season={hajj} />
       </Section>
-    </div>
-  </div>
+    )
+  )}
 
-  <div id="packages-empty" hidden>
+  {sections.length === 0 && (
     <Section>
       <div
         data-animate
@@ -93,27 +103,7 @@ import { octoberUmrah, hajj2027 } from "../data/hajjUmrah";
         </div>
       </div>
     </Section>
-  </div>
-
-  <script>
-    // Pages are prerendered, so order upcoming packages by departure and drop
-    // any whose departure has passed, client-side.
-    const list = document.getElementById("package-list");
-    if (list) {
-      const now = Date.now();
-      const items = Array.from(list.querySelectorAll<HTMLElement>("[data-package]")).sort(
-        (a, b) => Date.parse(a.dataset.departs ?? "") - Date.parse(b.dataset.departs ?? "")
-      );
-      for (const el of items) {
-        if (now >= Date.parse(el.dataset.departs ?? "")) el.remove();
-        else list.appendChild(el);
-      }
-      if (!list.querySelector("[data-package]")) {
-        const empty = document.getElementById("packages-empty");
-        if (empty) empty.hidden = false;
-      }
-    }
-  </script>
+  )}
 
   <Section>
     <div data-animate class="rounded-3xl bg-navy-light border border-white/10 px-6 sm:px-12 py-10 sm:py-14 text-center">

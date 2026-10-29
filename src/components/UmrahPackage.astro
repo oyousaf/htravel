@@ -1,6 +1,23 @@
 ---
-import { octoberUmrah as p } from "../data/hajjUmrah";
+import type { UmrahPackage } from "../data/hajjUmrah";
+import { addDays, dateRange, dayDate, gbp, nightsBetween, shortDate } from "../lib/packages";
 import { site } from "../data/site";
+
+interface Props {
+  pkg: UmrahPackage;
+}
+
+const { pkg: p } = Astro.props;
+
+const nights = nightsBetween(p.departDate, p.returnDate);
+
+// Each hotel's stay follows on from the previous one, starting on the departure date.
+let checkIn = p.departDate;
+const hotels = p.hotels.map((h) => {
+  const stay = { ...h, checkIn: shortDate(checkIn), checkOut: shortDate(addDays(checkIn, h.nights)) };
+  checkIn = addDays(checkIn, h.nights);
+  return stay;
+});
 ---
 
 <article
@@ -10,20 +27,20 @@ import { site } from "../data/site";
   <header class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
     <div>
       <span class="inline-block rounded-full bg-teal px-3 py-1 text-xs font-semibold text-navy-dark mb-3">
-        {p.nights} nights · {p.dates}
+        {nights} nights · {dateRange(p.departDate, p.returnDate)}
       </span>
       <h3 class="text-2xl sm:text-3xl font-bold text-white">{p.name}</h3>
       <p class="text-white/70 mt-1">Led by <span class="text-white font-semibold">{p.leader}</span></p>
     </div>
     <p class="text-white/60 text-sm">
-      Book now with just <span class="text-teal font-bold text-lg">{p.deposit}</span>
+      Book now with just <span class="text-teal font-bold text-lg">{gbp(p.deposit)}</span>
       <span class="block text-xs text-white/55">non-refundable deposit</span>
     </p>
   </header>
 
   <div class="grid md:grid-cols-2 gap-4">
     {
-      p.hotels.map((h) => (
+      hotels.map((h) => (
         <div class="rounded-2xl bg-navy-dark/60 border border-white/10 p-5">
           <p class="text-teal text-xs font-semibold uppercase tracking-wide">{h.city} · {h.nights} nights</p>
           <p class="text-white font-bold text-lg mt-1">
@@ -43,14 +60,14 @@ import { site } from "../data/site";
           p.rooms.map((r) => (
             <li class="flex items-center justify-between px-5 py-3 bg-navy-dark/40">
               <span class="text-white/80">{r.label}</span>
-              <span class="text-teal text-xl font-bold">{r.price}</span>
+              <span class="text-teal text-xl font-bold">{gbp(r.price)}</span>
             </li>
           ))
         }
       </ul>
       <ul class="mt-3 space-y-1 text-sm text-white/60">
-        <li>Youth &amp; child price: {p.youthChildDiscount} less</li>
-        <li>Prices valid for British passports — other nationalities {p.nonBritishSurcharge} extra</li>
+        <li>Youth &amp; child price: {gbp(p.youthChildDiscount)} less</li>
+        <li>Prices valid for British passports — other nationalities {gbp(p.nonBritishSurcharge)} extra</li>
       </ul>
     </div>
 
@@ -79,7 +96,7 @@ import { site } from "../data/site";
         p.flights.map((f) => (
           <li class="rounded-2xl bg-navy-dark/60 border border-white/10 p-4 text-sm">
             <p class="flex justify-between text-white/55 text-xs">
-              <span>{f.date}</span>
+              <span>{dayDate(f.leg === "outbound" ? p.departDate : p.returnDate)}</span>
               <span class="font-mono">{f.flight}</span>
             </p>
             <p class="text-white mt-2">
@@ -93,7 +110,7 @@ import { site } from "../data/site";
         ))
       }
     </ul>
-    <p class="text-white/55 text-xs mt-2">Local times shown. Return connects in Jeddah (3h 10m transit).</p>
+    <p class="text-white/55 text-xs mt-2">{p.flightNote}</p>
   </div>
 
   <div class="flex flex-wrap gap-3">

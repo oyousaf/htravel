@@ -1,0 +1,241 @@
+---
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import { isAuthed } from "../../lib/adminAuth";
+
+export const prerender = false;
+
+if (isAuthed(Astro.cookies)) return Astro.redirect("/admin/dashboard");
+
+const plane =
+  "M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2.5 1.5V22l4-1 4 1v-1.5L13 19v-5.5z";
+---
+
+<AdminLayout title="Staff Login">
+  <div class="relative min-h-screen overflow-hidden flex items-center justify-center px-4 py-12">
+    <div class="glow glow-a" aria-hidden="true"></div>
+    <div class="glow glow-b" aria-hidden="true"></div>
+
+    <div id="login-card" class="card relative w-full max-w-sm">
+      <div class="flex flex-col items-center text-center mb-8">
+        <div class="emblem relative h-44 w-44 flex items-center justify-center" aria-hidden="true">
+          <div class="orbit absolute inset-0 rounded-full border-2 border-dashed border-teal/30">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="orbit-plane absolute -top-3 left-1/2 -ml-3 h-6 w-6 text-teal">
+              <path d={plane} />
+            </svg>
+          </div>
+          <div class="badge h-24 w-24 rounded-full bg-teal flex items-center justify-center shadow-[0_0_60px_-10px] shadow-teal/70">
+            <svg viewBox="0 0 24 24" fill="currentColor" class="badge-plane h-11 w-11 text-navy-dark rotate-45">
+              <path d={plane} />
+            </svg>
+          </div>
+        </div>
+        <p class="mt-4 text-xs font-semibold tracking-[0.25em] text-teal uppercase">Heckmondwike</p>
+        <h1 class="text-2xl font-extrabold tracking-tight uppercase">Travel &amp; Tours</h1>
+        <p class="mt-2 text-sm text-white/55">Staff area</p>
+      </div>
+
+      <form
+        id="login-form"
+        class="rounded-3xl border border-white/10 bg-navy-light/50 backdrop-blur-xl p-6 sm:p-8 shadow-2xl"
+      >
+        <label for="password" class="block text-sm text-white/70 mb-2">Password</label>
+        <div class="relative">
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            autofocus
+            class="w-full rounded-xl bg-navy-dark border border-white/20 pl-4 pr-12 py-3 text-white text-lg focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/50 transition"
+          />
+          <button
+            type="button"
+            id="toggle-password"
+            aria-label="Show password"
+            class="absolute inset-y-0 right-0 px-4 text-white/50 hover:text-teal transition-colors"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
+              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z" />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+          </button>
+        </div>
+        <button
+          type="submit"
+          class="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-full bg-teal px-6 py-3 text-sm font-semibold text-navy-dark hover:bg-teal-dark transition-colors disabled:opacity-60"
+        >
+          <span id="login-label">Log in</span>
+          <svg id="login-spinner" viewBox="0 0 24 24" fill="none" class="hidden h-4 w-4 animate-spin">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" class="opacity-25" />
+            <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+          </svg>
+        </button>
+        <p id="login-status" class="mt-4 min-h-5 text-center text-sm text-red-400" role="status"></p>
+      </form>
+
+      <p class="mt-6 text-center text-xs text-white/40">
+        <a href="/" class="hover:text-teal transition-colors">← Back to the website</a>
+      </p>
+    </div>
+  </div>
+</AdminLayout>
+
+<style>
+  .glow {
+    position: absolute;
+    width: 32rem;
+    height: 32rem;
+    border-radius: 9999px;
+    filter: blur(90px);
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  .glow-a {
+    background: var(--color-teal);
+    top: -12rem;
+    left: -10rem;
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  .glow-b {
+    background: #2563eb;
+    bottom: -14rem;
+    right: -10rem;
+    animation: drift 22s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes drift {
+    to {
+      transform: translate(8rem, 6rem) scale(1.15);
+    }
+  }
+
+  .card {
+    animation: rise 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px) scale(0.97);
+    }
+  }
+
+  .orbit {
+    animation: orbit-spin 9s linear infinite;
+  }
+  /* Points the plane along the orbit's direction of travel. */
+  .orbit-plane {
+    transform: rotate(90deg);
+  }
+  @keyframes orbit-spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .badge {
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    50% {
+      transform: translateY(-6px);
+    }
+  }
+
+  .card.is-shaking {
+    animation: shake 0.45s ease-in-out;
+  }
+  @keyframes shake {
+    20%,
+    60% {
+      transform: translateX(-10px);
+    }
+    40%,
+    80% {
+      transform: translateX(10px);
+    }
+  }
+
+  .card.is-leaving {
+    animation: leave 0.6s ease-in 0.3s forwards;
+  }
+  @keyframes leave {
+    to {
+      opacity: 0;
+      transform: translateY(-16px) scale(0.98);
+    }
+  }
+  /* Translates along the plane's own (rotated) nose direction, so it climbs away up and right. */
+  .card.is-leaving .badge-plane {
+    transition: transform 0.7s cubic-bezier(0.5, 0, 0.75, 0);
+    transform: translateY(-220px) scale(0.6);
+  }
+  .card.is-leaving .orbit {
+    animation-duration: 1.2s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glow,
+    .card,
+    .orbit,
+    .badge,
+    .card.is-shaking,
+    .card.is-leaving {
+      animation: none;
+    }
+    .card.is-leaving .badge-plane {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const card = document.getElementById("login-card") as HTMLElement;
+  const form = document.getElementById("login-form") as HTMLFormElement;
+  const input = document.getElementById("password") as HTMLInputElement;
+  const toggle = document.getElementById("toggle-password") as HTMLButtonElement;
+  const status = document.getElementById("login-status") as HTMLElement;
+  const label = document.getElementById("login-label") as HTMLElement;
+  const spinner = document.getElementById("login-spinner") as unknown as SVGElement;
+  const submit = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  toggle.addEventListener("click", () => {
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    toggle.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  });
+
+  function setBusy(busy: boolean) {
+    submit.disabled = busy;
+    spinner.classList.toggle("hidden", !busy);
+    label.textContent = busy ? "Checking…" : "Log in";
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    status.textContent = "";
+    setBusy(true);
+
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: input.value }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Could not log in.");
+
+      label.textContent = "Welcome back";
+      card.classList.add("is-leaving");
+      setTimeout(() => location.assign("/admin/dashboard"), reducedMotion ? 0 : 900);
+    } catch (err) {
+      setBusy(false);
+      status.textContent = err instanceof Error ? err.message : "Could not log in.";
+      input.select();
+      card.classList.remove("is-shaking");
+      void card.offsetWidth; // restart the animation on repeated failures
+      card.classList.add("is-shaking");
+    }
+  });
+</script>

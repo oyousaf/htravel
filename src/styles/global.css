@@ -7,6 +7,21 @@
   --color-teal: #3fd9c7;
   --color-teal-dark: #2bb6a6;
   --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+
+  --animate-heartbeat: heartbeat 1.6s ease-in-out infinite;
+  @keyframes heartbeat {
+    0%,
+    40%,
+    100% {
+      transform: scale(1);
+    }
+    15% {
+      transform: scale(1.25);
+    }
+    28% {
+      transform: scale(1.1);
+    }
+  }
 }
 
 body {
