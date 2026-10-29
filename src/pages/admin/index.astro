@@ -45,6 +45,7 @@ const plane =
             name="password"
             type="password"
             autocomplete="current-password"
+            maxlength="4"
             required
             autofocus
             class="w-full rounded-xl bg-navy-dark border border-white/20 pl-4 pr-12 py-3 text-white text-lg focus:border-teal focus:outline-none focus:ring-2 focus:ring-teal/50 transition"
@@ -212,6 +213,37 @@ const plane =
     label.textContent = busy ? "Checking…" : "Log in";
   }
 
+  function shake() {
+    card.classList.remove("is-shaking");
+    void card.offsetWidth; // restart the animation on repeated failures
+    card.classList.add("is-shaking");
+  }
+
+  // Locks the form and counts down until the server allows another attempt.
+  function lockFor(seconds: number) {
+    const until = Date.now() + seconds * 1000;
+    input.disabled = true;
+    submit.disabled = true;
+    spinner.classList.add("hidden");
+
+    const tick = () => {
+      const left = Math.max(0, Math.ceil((until - Date.now()) / 1000));
+      if (left === 0) {
+        clearInterval(timer);
+        input.disabled = false;
+        submit.disabled = false;
+        label.textContent = "Log in";
+        status.textContent = "";
+        input.value = "";
+        input.focus();
+        return;
+      }
+      label.textContent = `Try again in ${Math.floor(left / 60)}:${String(left % 60).padStart(2, "0")}`;
+    };
+    const timer = setInterval(tick, 1000);
+    tick();
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     status.textContent = "";
@@ -224,6 +256,13 @@ const plane =
         body: JSON.stringify({ password: input.value }),
       });
       const json = await res.json();
+
+      if (res.status === 429) {
+        status.textContent = json.error ?? "Too many attempts.";
+        shake();
+        lockFor(Number(json.retryAfter) || 60);
+        return;
+      }
       if (!res.ok) throw new Error(json.error ?? "Could not log in.");
 
       label.textContent = "Welcome back";
@@ -233,9 +272,7 @@ const plane =
       setBusy(false);
       status.textContent = err instanceof Error ? err.message : "Could not log in.";
       input.select();
-      card.classList.remove("is-shaking");
-      void card.offsetWidth; // restart the animation on repeated failures
-      card.classList.add("is-shaking");
+      shake();
     }
   });
 </script>
