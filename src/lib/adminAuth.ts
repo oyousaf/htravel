@@ -2,7 +2,8 @@ import type { AstroCookies } from "astro";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 
 const COOKIE = "htravel_admin";
-const SESSION_MS = 12 * 60 * 60 * 1000;
+// Stays signed in on that device for 6 months; logging out or changing ADMIN_PASSWORD ends it sooner.
+const SESSION_MS = 183 * 24 * 60 * 60 * 1000;
 
 // Sessions are signed with a key derived from the password, so changing
 // ADMIN_PASSWORD signs everyone out without needing a separate secret.
